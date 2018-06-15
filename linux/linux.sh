@@ -133,3 +133,30 @@ do
 done < "$1"
 
 exit 0
+
+#9) by pass the lines older then assigned second parameters
+
+#!/usr/bin/env bash
+COUNT=1
+BREAKPOINT=false
+BREAKPOINT_VAL=$2
+while IFS='' read -r LINE
+do
+
+  if [[ "$LINE" = "Maria"  ]]
+      then
+      echo "$LINE"
+      BREAKPOINT=true
+  fi
+
+
+    if [[ $BREAKPOINT = "true" ]]
+        then
+        echo "$LINE"
+        echo "$LINE" >> $1_".log"
+    fi
+
+done < "$1"
+
+exit 0
+
