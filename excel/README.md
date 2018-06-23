@@ -1,4 +1,4 @@
-###Shortcut in Excel  
+###Shortcut in Excel.
 
 Shout cut       | Desription
 ------------    | ---------------
