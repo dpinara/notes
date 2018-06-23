@@ -116,5 +116,74 @@
          .thenReturn(blueChipStock);
     
  
+|Integration testing| 
+|------------ | 
+######Integration testing : The way we have surefire plugin for junit, maven-failsafe-plugin is for integration testing. The class which is to be included for integration testing should start with IT 
+    <build>
+      <plugins>
+         <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+               <includes>
+                  <include>**/*Tests.java</include>
+                  <include>**/*Test.java</include>
+                  <include>**/Test*.java</include>
+               </includes>
+               <excludes>
+                  <exclude>**/Abstract*.java</exclude>
+               </excludes>
+            </configuration>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>integration-test</goal>
+                     <goal>verify</goal>
+                  </goals>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+    </build>
 
 
+
+
+|Load property from properties file & get Spring configuration | 
+|------------ | 
+    @Configuration
+    @PropertySource("classpath:/com/soundsystem/app.properties")
+    public class EnvironmentConfig {
+    
+     @Autowired
+     Environment env;
+    
+    public class DataSourceConfigTest {
+    
+     @RunWith(SpringJUnit4ClassRunner.class)
+     @ContextConfiguration(classes=DataSourceConfig.class)
+     @ActiveProfiles("dev")
+     public static class DevDataSourceTest {
+       @Autowired
+       private DataSource dataSource;
+    
+    
+###### We can always get context in junit
+    @Autowired
+    private ApplicationContext context;
+
+|To ignore getting beans from @configuration| 
+|------------ | 
+    @Configuration
+    @ComponentScan(excludeFilters={@Filter(type=FilterType.ANNOTATION, value=Configuration.class)})
+    public class ComponentScannedConfig {
+    
+    }
