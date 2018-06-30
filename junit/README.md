@@ -1,7 +1,18 @@
 ### Useful Links
-:sunglasses: [In 28 Mins junit](https://github.com/in28minutes/spring-unit-testing-with-junit-and-mockito)
+- :sunglasses: [In 28 Mins junit](https://github.com/in28minutes/spring-unit-testing-with-junit-and-mockito)
+- [naming standards for unit tests](http://osherove.com/blog/2005/4/3/naming-standards-for-unit-tests.html)
    
    
+
+|Spring annonotation | Description | 
+|------------ | ------------ | 
+|@Configuration |It overrides @SpringBootConfiguration class config. This requires us to provide context bean for each requried bearn |
+|@TestConfiguration |Adds extra configuration on top of  @SpringBootConfiguration  |
+|@MockBean | Replaces of adds a mock bean to the ApplicationContext. It takes care of a) reseting the mock ( no need for @DirtiesContext) b) context cache issues c) AOP issues|
+|@SpyBean | Can be used spy bean only if it is already available in context |
+|@JsonTest | Use to test JSON marshalling and unmarshalling , Auto configures jackson/GSON, Proviedes JacksonTester/GsonTester |
+
+
 
 |Built in Rules | 
 |------------ | 
@@ -187,3 +198,4 @@
     public class ComponentScannedConfig {
     
     }
+
