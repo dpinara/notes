@@ -199,3 +199,37 @@
     
     }
 
+|@TestPropertySource usage| 
+|------------ | 
+    @TestPropertySource(properties = "vehicle.service.root-url=http://example.com/")
+    public class RemoteVehicleDetailsServiceTest {
+
+
+    // Above single property in test will overrides the property in class
+    @Component
+    @ConfigurationProperties(prefix = "vehicle.service")
+    public class RemoteVehicleDetailsServiceProperties {
+    
+    	private String rootUrl = "http://localhost:8081/vs/";
+    
+    	public String getRootUrl() {
+    		return this.rootUrl;
+    	}
+    
+    	public void setRootUrl(String vehicleServiceRootUrl) {
+    		this.rootUrl = vehicleServiceRootUrl;
+    	}
+    
+    }
+
+|@RestClientTest usage| 
+|------------ | 
+    // In tandem with SpringRunner, @RestClientTest cherry pick to load only two services.
+    @RunWith(SpringRunner.class)
+    @RestClientTest({ RemoteVehicleDetailsService.class,
+            RemoteVehicleDetailsServiceProperties.class })
+
+    // here given that @RestClientTest is used, we can use 	@Autowired private MockRestServiceServer server;
+
+		this.server.expect(requestTo("http://example.com/vehicle/" + VIN + "/details"))
+				.andRespond(withStatus(HttpStatus.NOT_FOUND));
