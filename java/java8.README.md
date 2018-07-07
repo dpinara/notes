@@ -1,5 +1,8 @@
 # Optional
 
+# Optional       | 
+------------    | 
+        [1]  Watch orElseThrow
         return this.accountRepository.findByUsername(username)
                 .map(account -> new User(account.getUsername(),
                         account.getPassword(),
@@ -8,10 +11,72 @@
                 ))
                 .orElseThrow(() -> new UsernameNotFoundException("couldn't find " + username + "!"));
 
-# Stream
+        [2]  Possible null value
+        Optional.ofNullable(department)
+        
+        [3]  Handling optional in stream
+
+            public List<Employee> findEmployeesByIds1(List<Integer> ids) {
+                return ids.stream()
+                        .map(this::findEmployeeById)
+                        // returns Stream<Optional<Employee>>
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .collect(Collectors.toList());
+
+            public Optional<Employee> findEmployeeById(int id) {
+                return Optional.ofNullable(employeeMap.get(id));
+            }
+        
+        [4] orElse
+        String first = Stream.of("this is a list of strings".split(" "))
+                .filter(s -> s.length() > 10)
+                .findFirst().orElse("No string satisfying predicate found");
+        
+        [5] Two ways of creating optional
+
+            public static <T> Optional<T> createOptionalTheHardWay(T value) {
+                return value == null ? Optional.empty() : Optional.of(value);
+            }
+        
+            public static <T> Optional<T> createOptionalTheEasyWay(T value) {
+                return Optional.ofNullable(value);
+            }
+        [6] Factory of optional
+         Optional<Company> company = Optional.of(co);
+       
+        [7] Flat map usage 
+            company
+                    .flatMap(Company::getDepartment)
+                    .flatMap(Department::getBoss)
+                    .map(Manager::getName).orElse("No Manager Name")
+                
+        
+# Stream        |
+------------    | 
 
         Stream.of("pwebb,boot", "dsyer,cloud", "jlong,spring", "rod,atomist")
                 .map(x -> x.split(","))
                 .forEach(tuple -> accountRepository.save(new Account(tuple[0], tuple[1], true)));
 
+
+        
+# Functional Interface -  Predicate |
+------------          |
+        [1]     
+        public static final Predicate<String> EVENS = s -> s.length() % 2 == 0;
+
+        [2] Predicate defined and returned.
+          public static Predicate<Car> getRedCarCriterion() {
+            return RED_CAR_CRITERION;
+          }
+        
+          private static final Predicate<Car> RED_CAR_CRITERION
+              = c -> c.color.equals("Red");
+              
+              
+         [3] use lambda to return functional behaviour
+           private static final Comparator<Car> fuelComparator = (o1, o2) -> o1.gasLevel - o2.gasLevel;
+     
+        
 
