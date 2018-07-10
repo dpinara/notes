@@ -9,8 +9,8 @@ Author | Description
 
         First time login from local pc :
             D:\projects\aws>aws configure
-            AWS Access Key ID [None]: dpinara
-            AWS Secret Access Key [None]: Si***
+            AWS Access Key ID [None]: 
+            AWS Secret Access Key [None]: ***
             Default region name [None]: us-east-2
             Default output format [None]:
             D:\projects\aws>
