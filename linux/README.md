@@ -1,5 +1,30 @@
+# du
+    du -h | sort -rn | head
+    here -h human readable, -rn reverse sized    
+
+# awk
+![ awk commands ](images/awk-commands.jpg)
+
+# cut
+
+    cut -f 2 -d : /etc/passwd 
+    # here -f 2 is second field and -d : is deliminator as column
+# grep
+
+    grep -e 'what' -e 'else' *
+    # -e is egrep - matches more regular expression
+    
+    grep -A5 
+    shows five line after matching the regex
+     
+    grep -B4 
+    shows four line before matching the regex
+    
+![ grep size ](images/grep-size.jpg)
+    
+    
+
 # input/output/errorout
-    '''
     Admin@DESKTOP-2V0SC6I MINGW64 /d/projects/github/notes (master)
     $ ls junit README.md notExists.txt 1> out.txt 2>error.txt
     
@@ -75,6 +100,5 @@
     $ echo $?
     2
 
-    '''
     
     

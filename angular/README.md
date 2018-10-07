@@ -1,3 +1,8 @@
+| Topic    | Description         |
+| ------------ | ------------------- |
+| debug in angular|  f.value pipe symbol json , here f is form #f |
+
+
 Installing cli | 
 ------------ | 
 
