@@ -1,3 +1,5 @@
+kubectl get pods --namespace kube-system
+
 daemonset.apps/kube-proxy
   - pod/kube-proxy-cljd2
   - pod/kube-proxy-dcd8f
