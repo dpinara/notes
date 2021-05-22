@@ -1,0 +1,1577 @@
+daemonset.apps/kube-proxy
+  - pod/kube-proxy-cljd2
+  - pod/kube-proxy-dcd8f
+
+daemonset.apps/weave-net
+  - pod/weave-net-287hw
+  - pod/weave-net-9wjcj
+
+deployment.apps/coredns
+  - pod/coredns-f9fd979d6-27bqk
+  - pod/coredns-f9fd979d6-5lc8k
+
+Independent pods [ C A S E]
+  - pod/kube-controller-manager-controlplane  [Controller manager]
+  - pod/kube-apiserver-controlplane           [API Server]
+  - pod/kube-scheduler-controlplane           [Scheduler]
+  - pod/etcd-controlplane                     [ETCD]
+
+Since node namde is appended at the end so it is static pod
+######################################################
+
+controlplane $ k get all -n kube-system
+NAME                                       READY   STATUS    RESTARTS   AGE
+pod/kube-apiserver-controlplane            1/1     Running   0          3m38s
+pod/etcd-controlplane                      1/1     Running   0          3m38s
+pod/kube-controller-manager-controlplane   1/1     Running   0          3m38s
+pod/kube-scheduler-controlplane            1/1     Running   0          3m38s
+pod/coredns-f9fd979d6-27bqk                1/1     Running   0          3m35s
+pod/coredns-f9fd979d6-5lc8k                1/1     Running   0          3m35s
+pod/kube-proxy-cljd2                       1/1     Running   0          3m35s
+pod/kube-proxy-dcd8f                       1/1     Running   0          3m16s
+pod/weave-net-287hw                        2/2     Running   0          98s
+pod/weave-net-9wjcj                        2/2     Running   0          38s
+
+NAME               TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)                  AGE
+service/kube-dns   ClusterIP   10.96.0.10   <none>        53/UDP,53/TCP,9153/TCP   3m51s
+
+NAME                        DESIRED   CURRENT   READY   UP-TO-DATE   AVAILABLE   NODE SELECTOR            AGE
+daemonset.apps/kube-proxy   2         2         2       2            2           kubernetes.io/os=linux   3m51s
+daemonset.apps/weave-net    2         2         2       2            2           <none>                   3m49s
+
+NAME                      READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/coredns   2/2     2            2           3m52s
+
+NAME                                DESIRED   CURRENT   READY   AGE
+replicaset.apps/coredns-f9fd979d6   2         2         2       3m35s
+
+######################################################
+daemonset.apps/kube-flannel-ds
+pod/kube-flannel-ds-skw7m
+######################################################
+root@controlplane:/etc# k describe daemonset.apps/kube-flannel-ds
+Name:           kube-flannel-ds
+Selector:       app=flannel
+Node-Selector:  <none>
+Labels:         app=flannel
+                tier=node
+Annotations:    deprecated.daemonset.template.generation: 1
+Desired Number of Nodes Scheduled: 1
+Current Number of Nodes Scheduled: 1
+Number of Nodes Scheduled with Up-to-date Pods: 1
+Number of Nodes Scheduled with Available Pods: 1
+Number of Nodes Misscheduled: 0
+Pods Status:  1 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+  Labels:           app=flannel
+                    tier=node
+  Service Account:  flannel
+  Init Containers:
+   install-cni:
+    Image:      quay.io/coreos/flannel:v0.13.1-rc1
+    Port:       <none>
+    Host Port:  <none>
+    Command:
+      cp
+    Args:
+      -f
+      /etc/kube-flannel/cni-conf.json
+      /etc/cni/net.d/10-flannel.conflist
+    Environment:  <none>
+    Mounts:
+      /etc/cni/net.d from cni (rw)
+      /etc/kube-flannel/ from flannel-cfg (rw)
+  Containers:
+   kube-flannel:
+    Image:      quay.io/coreos/flannel:v0.13.1-rc1
+    Port:       <none>
+    Host Port:  <none>
+    Command:
+      /opt/bin/flanneld
+    Args:
+      --ip-masq
+      --kube-subnet-mgr
+      --iface=eth0
+    Limits:
+      cpu:     100m
+      memory:  50Mi
+    Requests:
+      cpu:     100m
+      memory:  50Mi
+    Environment:
+      POD_NAME:        (v1:metadata.name)
+      POD_NAMESPACE:   (v1:metadata.namespace)
+    Mounts:
+      /etc/kube-flannel/ from flannel-cfg (rw)
+      /run/flannel from run (rw)
+  Volumes:
+   run:
+    Type:          HostPath (bare host directory volume)
+    Path:          /run/flannel
+    HostPathType:
+   cni:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/cni/net.d
+    HostPathType:
+   flannel-cfg:
+    Type:               ConfigMap (a volume populated by a ConfigMap)
+    Name:               kube-flannel-cfg
+    Optional:           false
+  Priority Class Name:  system-node-critical
+Events:
+  Type    Reason            Age   From                  Message
+  ----    ------            ----  ----                  -------
+  Normal  SuccessfulCreate  57m   daemonset-controller  Created pod: kube-flannel-ds-skw7m
+
+root@controlplane:/etc# k describe pod/kube-flannel-ds-skw7m
+Name:                 kube-flannel-ds-skw7m
+Namespace:            kube-system
+Priority:             2000001000
+Priority Class Name:  system-node-critical
+Node:                 controlplane/10.105.199.8
+Start Time:           Sat, 22 May 2021 07:01:35 +0000
+Labels:               app=flannel
+                      controller-revision-hash=d4555dc9c
+                      pod-template-generation=1
+                      tier=node
+Annotations:          <none>
+Status:               Running
+IP:                   10.105.199.8
+IPs:
+  IP:           10.105.199.8
+Controlled By:  DaemonSet/kube-flannel-ds
+Init Containers:
+  install-cni:
+    Container ID:  docker://e551b4b9980d702d8885fd6e74ad53225116783d8adc66ba568ae2f009d60b08
+    Image:         quay.io/coreos/flannel:v0.13.1-rc1
+    Image ID:      docker-pullable://quay.io/coreos/flannel@sha256:51223d328b2f85d8fe9ad35db82d564b45b03fd1002728efcf14011aff02de78
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      cp
+    Args:
+      -f
+      /etc/kube-flannel/cni-conf.json
+      /etc/cni/net.d/10-flannel.conflist
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Sat, 22 May 2021 07:01:41 +0000
+      Finished:     Sat, 22 May 2021 07:01:41 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /etc/cni/net.d from cni (rw)
+      /etc/kube-flannel/ from flannel-cfg (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from flannel-token-7zj22 (ro)
+Containers:
+  kube-flannel:
+    Container ID:  docker://9e875644e08e0c4f0deb5f4ed4c794acc9dd95632c4037961e16145d1315584d
+    Image:         quay.io/coreos/flannel:v0.13.1-rc1
+    Image ID:      docker-pullable://quay.io/coreos/flannel@sha256:51223d328b2f85d8fe9ad35db82d564b45b03fd1002728efcf14011aff02de78
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /opt/bin/flanneld
+    Args:
+      --ip-masq
+      --kube-subnet-mgr
+      --iface=eth0
+    State:          Running
+      Started:      Sat, 22 May 2021 07:01:44 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      cpu:     100m
+      memory:  50Mi
+    Requests:
+      cpu:     100m
+      memory:  50Mi
+    Environment:
+      POD_NAME:       kube-flannel-ds-skw7m (v1:metadata.name)
+      POD_NAMESPACE:  kube-system (v1:metadata.namespace)
+    Mounts:
+      /etc/kube-flannel/ from flannel-cfg (rw)
+      /run/flannel from run (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from flannel-token-7zj22 (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  run:
+    Type:          HostPath (bare host directory volume)
+    Path:          /run/flannel
+    HostPathType:
+  cni:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/cni/net.d
+    HostPathType:
+  flannel-cfg:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      kube-flannel-cfg
+    Optional:  false
+  flannel-token-7zj22:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  flannel-token-7zj22
+    Optional:    false
+QoS Class:       Burstable
+Node-Selectors:  <none>
+Tolerations:     :NoSchedule op=Exists
+                 node.kubernetes.io/disk-pressure:NoSchedule op=Exists
+                 node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                 node.kubernetes.io/network-unavailable:NoSchedule op=Exists
+                 node.kubernetes.io/not-ready:NoExecute op=Exists
+                 node.kubernetes.io/pid-pressure:NoSchedule op=Exists
+                 node.kubernetes.io/unreachable:NoExecute op=Exists
+                 node.kubernetes.io/unschedulable:NoSchedule op=Exists
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  57m   default-scheduler  Successfully assigned kube-system/kube-flannel-ds-skw7m to controlplane
+  Normal  Pulled     57m   kubelet            Container image "quay.io/coreos/flannel:v0.13.1-rc1" already present on machine
+  Normal  Created    57m   kubelet            Created container install-cni
+  Normal  Started    57m   kubelet            Started container install-cni
+  Normal  Pulled     57m   kubelet            Container image "quay.io/coreos/flannel:v0.13.1-rc1" already present on machine
+  Normal  Created    57m   kubelet            Created container kube-flannel
+  Normal  Started    57m   kubelet            Started container kube-flannel
+root@controlplane:/etc#
+
+######################################################
+daemonset.apps/kube-proxy
+kube-proxy-2t54z
+######################################################
+
+root@controlplane:/etc# k describe  daemonset.apps/kube-proxy
+Name:           kube-proxy
+Selector:       k8s-app=kube-proxy
+Node-Selector:  kubernetes.io/os=linux
+Labels:         k8s-app=kube-proxy
+Annotations:    deprecated.daemonset.template.generation: 1
+Desired Number of Nodes Scheduled: 1
+Current Number of Nodes Scheduled: 1
+Number of Nodes Scheduled with Up-to-date Pods: 1
+Number of Nodes Scheduled with Available Pods: 1
+Number of Nodes Misscheduled: 0
+Pods Status:  1 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+  Labels:           k8s-app=kube-proxy
+  Service Account:  kube-proxy
+  Containers:
+   kube-proxy:
+    Image:      k8s.gcr.io/kube-proxy:v1.20.0
+    Port:       <none>
+    Host Port:  <none>
+    Command:
+      /usr/local/bin/kube-proxy
+      --config=/var/lib/kube-proxy/config.conf
+      --hostname-override=$(NODE_NAME)
+    Environment:
+      NODE_NAME:   (v1:spec.nodeName)
+    Mounts:
+      /lib/modules from lib-modules (ro)
+      /run/xtables.lock from xtables-lock (rw)
+      /var/lib/kube-proxy from kube-proxy (rw)
+  Volumes:
+   kube-proxy:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      kube-proxy
+    Optional:  false
+   xtables-lock:
+    Type:          HostPath (bare host directory volume)
+    Path:          /run/xtables.lock
+    HostPathType:  FileOrCreate
+   lib-modules:
+    Type:               HostPath (bare host directory volume)
+    Path:               /lib/modules
+    HostPathType:
+  Priority Class Name:  system-node-critical
+Events:
+  Type    Reason            Age   From                  Message
+  ----    ------            ----  ----                  -------
+  Normal  SuccessfulCreate  55m   daemonset-controller  Created pod: kube-proxy-2t54z
+root@controlplane:/etc# k get po
+NAME                                   READY   STATUS    RESTARTS   AGE
+coredns-74ff55c5b-8v4br                1/1     Running   0          55m
+coredns-74ff55c5b-94lfg                1/1     Running   0          55m
+etcd-controlplane                      1/1     Running   0          55m
+kube-apiserver-controlplane            1/1     Running   0          55m
+kube-controller-manager-controlplane   1/1     Running   0          55m
+kube-flannel-ds-skw7m                  1/1     Running   0          55m
+kube-proxy-2t54z                       1/1     Running   0          55m
+kube-scheduler-controlplane            1/1     Running   0          55m
+root@controlplane:/etc# k describe po kube-proxy-2t54z
+Name:                 kube-proxy-2t54z
+Namespace:            kube-system
+Priority:             2000001000
+Priority Class Name:  system-node-critical
+Node:                 controlplane/10.105.199.8
+Start Time:           Sat, 22 May 2021 07:01:35 +0000
+Labels:               controller-revision-hash=774bf47ffd
+                      k8s-app=kube-proxy
+                      pod-template-generation=1
+Annotations:          <none>
+Status:               Running
+IP:                   10.105.199.8
+IPs:
+  IP:           10.105.199.8
+Controlled By:  DaemonSet/kube-proxy
+Containers:
+  kube-proxy:
+    Container ID:  docker://f3f72073f1dda7eb626ae364337d224dbfeca8a69fc70bf8e27e64aef62e6ee7
+    Image:         k8s.gcr.io/kube-proxy:v1.20.0
+    Image ID:      docker-pullable://k8s.gcr.io/kube-proxy@sha256:40423415eebbd598d1c2660a0a38606ad1d949ea9404c405eaf25929163b479d
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /usr/local/bin/kube-proxy
+      --config=/var/lib/kube-proxy/config.conf
+      --hostname-override=$(NODE_NAME)
+    State:          Running
+      Started:      Sat, 22 May 2021 07:01:40 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:
+      NODE_NAME:   (v1:spec.nodeName)
+    Mounts:
+      /lib/modules from lib-modules (ro)
+      /run/xtables.lock from xtables-lock (rw)
+      /var/lib/kube-proxy from kube-proxy (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-proxy-token-rx86q (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  kube-proxy:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      kube-proxy
+    Optional:  false
+  xtables-lock:
+    Type:          HostPath (bare host directory volume)
+    Path:          /run/xtables.lock
+    HostPathType:  FileOrCreate
+  lib-modules:
+    Type:          HostPath (bare host directory volume)
+    Path:          /lib/modules
+    HostPathType:
+  kube-proxy-token-rx86q:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  kube-proxy-token-rx86q
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  kubernetes.io/os=linux
+Tolerations:     op=Exists
+                 CriticalAddonsOnly op=Exists
+                 node.kubernetes.io/disk-pressure:NoSchedule op=Exists
+                 node.kubernetes.io/memory-pressure:NoSchedule op=Exists
+                 node.kubernetes.io/network-unavailable:NoSchedule op=Exists
+                 node.kubernetes.io/not-ready:NoExecute op=Exists
+                 node.kubernetes.io/pid-pressure:NoSchedule op=Exists
+                 node.kubernetes.io/unreachable:NoExecute op=Exists
+                 node.kubernetes.io/unschedulable:NoSchedule op=Exists
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  55m   default-scheduler  Successfully assigned kube-system/kube-proxy-2t54z to controlplane
+  Normal  Pulled     55m   kubelet            Container image "k8s.gcr.io/kube-proxy:v1.20.0" already present on machine
+  Normal  Created    55m   kubelet            Created container kube-proxy
+  Normal  Started    55m   kubelet            Started container kube-proxy
+root@controlplane:/etc#
+
+
+######################################################
+pod/kube-scheduler-controlplane
+######################################################
+root@controlplane:/etc# k describe pod/kube-scheduler-controlplane
+Name:                 kube-scheduler-controlplane
+Namespace:            kube-system
+Priority:             2000001000
+Priority Class Name:  system-node-critical
+Node:                 controlplane/10.105.199.8
+Start Time:           Sat, 22 May 2021 07:01:28 +0000
+Labels:               component=kube-scheduler
+                      tier=control-plane
+Annotations:          kubernetes.io/config.hash: 81d2d21449d64d5e6d5e9069a7ca99ed
+                      kubernetes.io/config.mirror: 81d2d21449d64d5e6d5e9069a7ca99ed
+                      kubernetes.io/config.seen: 2021-05-22T07:01:25.321377260Z
+                      kubernetes.io/config.source: file
+Status:               Running
+IP:                   10.105.199.8
+IPs:
+  IP:           10.105.199.8
+Controlled By:  Node/controlplane
+Containers:
+  kube-scheduler:
+    Container ID:  docker://3f3ef66080e6df481af1bed15c599174e416d200a83974e5e8f33294c28d22ae
+    Image:         k8s.gcr.io/kube-scheduler:v1.20.0
+    Image ID:      docker-pullable://k8s.gcr.io/kube-scheduler@sha256:beaa710325047fa9c867eff4ab9af38d9c2acec05ac5b416c708c304f76bdbef
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      kube-scheduler
+      --authentication-kubeconfig=/etc/kubernetes/scheduler.conf
+      --authorization-kubeconfig=/etc/kubernetes/scheduler.conf
+      --bind-address=127.0.0.1
+      --kubeconfig=/etc/kubernetes/scheduler.conf
+      --leader-elect=true
+      --port=0
+    State:          Running
+      Started:      Sat, 22 May 2021 07:00:55 +0000
+    Ready:          True
+    Restart Count:  0
+    Requests:
+      cpu:        100m
+    Liveness:     http-get https://127.0.0.1:10259/healthz delay=10s timeout=15s period=10s #success=1 #failure=8
+    Startup:      http-get https://127.0.0.1:10259/healthz delay=10s timeout=15s period=10s #success=1 #failure=24
+    Environment:  <none>
+    Mounts:
+      /etc/kubernetes/scheduler.conf from kubeconfig (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  kubeconfig:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/kubernetes/scheduler.conf
+    HostPathType:  FileOrCreate
+QoS Class:         Burstable
+Node-Selectors:    <none>
+Tolerations:       :NoExecute op=Exists
+Events:            <none>
+root@controlplane:/etc#
+
+######################################################
+kube-apiserver-controlplane
+######################################################
+
+controlplane $ k describe pod kube-apiserver  -n kube-system
+Name:                 kube-apiserver-controlplane
+Namespace:            kube-system
+Priority:             2000001000
+Priority Class Name:  system-node-critical
+Node:                 controlplane/172.17.0.28
+Start Time:           Fri, 21 May 2021 08:01:04 +0000
+Labels:               component=kube-apiserver
+                      tier=control-plane
+Annotations:          kubeadm.kubernetes.io/kube-apiserver.advertise-address.endpoint: 172.17.0.28:6443
+                      kubernetes.io/config.hash: 07362314e37f6feed1ee502ae65b77e1
+                      kubernetes.io/config.mirror: 07362314e37f6feed1ee502ae65b77e1
+                      kubernetes.io/config.seen: 2021-05-21T08:00:57.726780804Z
+                      kubernetes.io/config.source: file
+Status:               Running
+IP:                   172.17.0.28
+IPs:
+  IP:           172.17.0.28
+Controlled By:  Node/controlplane
+Containers:
+  kube-apiserver:
+    Container ID:  docker://0b3d418bae070e75ba2aec9d2464ee264a35871ab75414b97db37f5464a82506
+    Image:         k8s.gcr.io/kube-apiserver:v1.19.0
+    Image ID:      docker-pullable://k8s.gcr.io/kube-apiserver@sha256:522d17d35a8994637d27d1232bebd35cfae8e3e21ab359431403f2b8023e332c
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      kube-apiserver
+      --advertise-address=172.17.0.28
+      --allow-privileged=true
+      --authorization-mode=Node,RBAC
+      --client-ca-file=/etc/kubernetes/pki/ca.crt
+      --enable-admission-plugins=NodeRestriction
+      --enable-bootstrap-token-auth=true
+      --etcd-cafile=/etc/kubernetes/pki/etcd/ca.crt
+      --etcd-certfile=/etc/kubernetes/pki/apiserver-etcd-client.crt
+      --etcd-keyfile=/etc/kubernetes/pki/apiserver-etcd-client.key
+      --etcd-servers=https://127.0.0.1:2379
+      --insecure-port=0
+      --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.crt
+      --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client.key
+      --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+      --proxy-client-cert-file=/etc/kubernetes/pki/front-proxy-client.crt
+      --proxy-client-key-file=/etc/kubernetes/pki/front-proxy-client.key
+      --requestheader-allowed-names=front-proxy-client
+      --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt
+      --requestheader-extra-headers-prefix=X-Remote-Extra-
+      --requestheader-group-headers=X-Remote-Group
+      --requestheader-username-headers=X-Remote-User
+      --secure-port=6443
+      --service-account-key-file=/etc/kubernetes/pki/sa.pub
+      --service-cluster-ip-range=10.96.0.0/12
+      --tls-cert-file=/etc/kubernetes/pki/apiserver.crt
+      --tls-private-key-file=/etc/kubernetes/pki/apiserver.key
+    State:          Running
+      Started:      Fri, 21 May 2021 08:00:43 +0000
+    Ready:          True
+    Restart Count:  0
+    Requests:
+      cpu:        250m
+    Liveness:     http-get https://172.17.0.28:6443/livez delay=10s timeout=15s period=10s #success=1 #failure=8
+    Readiness:    http-get https://172.17.0.28:6443/readyz delay=0s timeout=15s period=1s #success=1 #failure=3
+    Startup:      http-get https://172.17.0.28:6443/livez delay=10s timeout=15s period=10s #success=1 #failure=24
+    Environment:  <none>
+    Mounts:
+      /etc/ca-certificates from etc-ca-certificates (ro)
+      /etc/kubernetes/pki from k8s-certs (ro)
+      /etc/ssl/certs from ca-certs (ro)
+      /usr/local/share/ca-certificates from usr-local-share-ca-certificates (ro)
+      /usr/share/ca-certificates from usr-share-ca-certificates (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  ca-certs:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/ssl/certs
+    HostPathType:  DirectoryOrCreate
+  etc-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/ca-certificates
+    HostPathType:  DirectoryOrCreate
+  k8s-certs:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/kubernetes/pki
+    HostPathType:  DirectoryOrCreate
+  usr-local-share-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/local/share/ca-certificates
+    HostPathType:  DirectoryOrCreate
+  usr-share-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/share/ca-certificates
+    HostPathType:  DirectoryOrCreate
+QoS Class:         Burstable
+Node-Selectors:    <none>
+Tolerations:       :NoExecuteop=Exists
+Events:            <none>
+
+
+######################################################
+kube-scheduler-controlplane
+######################################################
+
+controlplane $ k describe po  kube-scheduler-controlplane -n kube-system
+Name:                 kube-scheduler-controlplane
+Namespace:            kube-system
+Priority:             2000001000
+Priority Class Name:  system-node-critical
+Node:                 controlplane/172.17.0.28
+Start Time:           Fri, 21 May 2021 08:01:04 +0000
+Labels:               component=kube-scheduler
+                      tier=control-plane
+Annotations:          kubernetes.io/config.hash: 5146743ebb284c11f03dc85146799d8b
+                      kubernetes.io/config.mirror: 5146743ebb284c11f03dc85146799d8b
+                      kubernetes.io/config.seen: 2021-05-21T08:00:57.726783762Z
+                      kubernetes.io/config.source: file
+Status:               Running
+IP:                   172.17.0.28
+IPs:
+  IP:           172.17.0.28
+Controlled By:  Node/controlplane
+Containers:
+  kube-scheduler:
+    Container ID:  docker://97b77d96a5b1143c6cbbbd4279fc96f2caaca95928d4a6500d53ee27e6833ed3
+    Image:         k8s.gcr.io/kube-scheduler:v1.19.0
+    Image ID:      docker-pullable://k8s.gcr.io/kube-scheduler@sha256:529a1566960a5b3024f2c94128e1cbd882ca1804f222ec5de99b25567858ecb9
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      kube-scheduler
+      --authentication-kubeconfig=/etc/kubernetes/scheduler.conf
+      --authorization-kubeconfig=/etc/kubernetes/scheduler.conf
+      --bind-address=127.0.0.1
+      --kubeconfig=/etc/kubernetes/scheduler.conf
+      --leader-elect=true
+      --port=0
+    State:          Running
+      Started:      Fri, 21 May 2021 08:00:43 +0000
+    Ready:          True
+    Restart Count:  0
+    Requests:
+      cpu:        100m
+    Liveness:     http-get https://127.0.0.1:10259/healthz delay=10s timeout=15s period=10s #success=1 #failure=8
+    Startup:      http-get https://127.0.0.1:10259/healthz delay=10s timeout=15s period=10s #success=1 #failure=24
+    Environment:  <none>
+    Mounts:
+      /etc/kubernetes/scheduler.conf from kubeconfig (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  kubeconfig:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/kubernetes/scheduler.conf
+    HostPathType:  FileOrCreate
+QoS Class:         Burstable
+Node-Selectors:    <none>
+Tolerations:       :NoExecuteop=Exists
+Events:            <none>
+controlplane $
+
+
+######################################################
+kube-controller-manager-controlplane
+######################################################
+root@controlplane:/etc# kubectl describe pod/kube-controller-manager-controlplane
+Name:                 kube-controller-manager-controlplane
+Namespace:            kube-system
+Priority:             2000001000
+Priority Class Name:  system-node-critical
+Node:                 controlplane/10.105.199.8
+Start Time:           Sat, 22 May 2021 07:01:28 +0000
+Labels:               component=kube-controller-manager
+                      tier=control-plane
+Annotations:          kubernetes.io/config.hash: a875134e700993a22f67999011829566
+                      kubernetes.io/config.mirror: a875134e700993a22f67999011829566
+                      kubernetes.io/config.seen: 2021-05-22T07:01:25.321374800Z
+                      kubernetes.io/config.source: file
+Status:               Running
+IP:                   10.105.199.8
+IPs:
+  IP:           10.105.199.8
+Controlled By:  Node/controlplane
+Containers:
+  kube-controller-manager:
+    Container ID:  docker://03c9da1758a1d564ea9a81d1ceab3d66c48ccbb0d5b66d0dc1b993803f6f5697
+    Image:         k8s.gcr.io/kube-controller-manager:v1.20.0
+    Image ID:      docker-pullable://k8s.gcr.io/kube-controller-manager@sha256:00ccc3a5735e82d53bc26054d594a942fae64620a6f84018c057a519ba7ed1dc
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      kube-controller-manager
+      --allocate-node-cidrs=true
+      --authentication-kubeconfig=/etc/kubernetes/controller-manager.conf
+      --authorization-kubeconfig=/etc/kubernetes/controller-manager.conf
+      --bind-address=127.0.0.1
+      --client-ca-file=/etc/kubernetes/pki/ca.crt
+      --cluster-cidr=10.244.0.0/16
+      --cluster-name=kubernetes
+      --cluster-signing-cert-file=/etc/kubernetes/pki/ca.crt
+      --cluster-signing-key-file=/etc/kubernetes/pki/ca.key
+      --controllers=*,bootstrapsigner,tokencleaner
+      --kubeconfig=/etc/kubernetes/controller-manager.conf
+      --leader-elect=true
+      --port=0
+      --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt
+      --root-ca-file=/etc/kubernetes/pki/ca.crt
+      --service-account-private-key-file=/etc/kubernetes/pki/sa.key
+      --service-cluster-ip-range=10.96.0.0/12
+      --use-service-account-credentials=true
+    State:          Running
+      Started:      Sat, 22 May 2021 07:00:54 +0000
+    Ready:          True
+    Restart Count:  0
+    Requests:
+      cpu:        200m
+    Liveness:     http-get https://127.0.0.1:10257/healthz delay=10s timeout=15s period=10s #success=1 #failure=8
+    Startup:      http-get https://127.0.0.1:10257/healthz delay=10s timeout=15s period=10s #success=1 #failure=24
+    Environment:  <none>
+    Mounts:
+      /etc/ca-certificates from etc-ca-certificates (ro)
+      /etc/kubernetes/controller-manager.conf from kubeconfig (ro)
+      /etc/kubernetes/pki from k8s-certs (ro)
+      /etc/ssl/certs from ca-certs (ro)
+      /usr/libexec/kubernetes/kubelet-plugins/volume/exec from flexvolume-dir (rw)
+      /usr/local/share/ca-certificates from usr-local-share-ca-certificates (ro)
+      /usr/share/ca-certificates from usr-share-ca-certificates (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  ca-certs:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/ssl/certs
+    HostPathType:  DirectoryOrCreate
+  etc-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/ca-certificates
+    HostPathType:  DirectoryOrCreate
+  flexvolume-dir:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/libexec/kubernetes/kubelet-plugins/volume/exec
+    HostPathType:  DirectoryOrCreate
+  k8s-certs:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/kubernetes/pki
+    HostPathType:  DirectoryOrCreate
+  kubeconfig:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/kubernetes/controller-manager.conf
+    HostPathType:  FileOrCreate
+  usr-local-share-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/local/share/ca-certificates
+    HostPathType:  DirectoryOrCreate
+  usr-share-ca-certificates:
+    Type:          HostPath (bare host directory volume)
+    Path:          /usr/share/ca-certificates
+    HostPathType:  DirectoryOrCreate
+QoS Class:         Burstable
+Node-Selectors:    <none>
+Tolerations:       :NoExecute op=Exists
+Events:            <none>
+root@controlplane:/etc#
+
+######################################################
+etcd-controlplane
+######################################################
+root@controlplane:~# k describe po etcd-controlplane
+Name:                 etcd-controlplane
+Namespace:            kube-system
+Priority:             2000001000
+Priority Class Name:  system-node-critical
+Node:                 controlplane/10.94.5.6
+Start Time:           Fri, 21 May 2021 16:23:11 +0000
+Labels:               component=etcd
+                      tier=control-plane
+Annotations:          kubeadm.kubernetes.io/etcd.advertise-client-urls: https://10.94.5.6:2379
+                      kubernetes.io/config.hash: def63d328fa843baa3c93a207fa5d88b
+                      kubernetes.io/config.mirror: def63d328fa843baa3c93a207fa5d88b
+                      kubernetes.io/config.seen: 2021-05-21T16:23:07.233374942Z
+                      kubernetes.io/config.source: file
+Status:               Running
+IP:                   10.94.5.6
+IPs:
+  IP:           10.94.5.6
+Controlled By:  Node/controlplane
+Containers:
+  etcd:
+    Container ID:  docker://d4de3f1e99784e75b6122258d5df820f9bb43fee67726e9cab9d27fb9a0bea44
+    Image:         k8s.gcr.io/etcd:3.4.13-0
+    Image ID:      docker-pullable://k8s.gcr.io/etcd@sha256:4ad90a11b55313b182afc186b9876c8e891531b8db4c9bf1541953021618d0e2
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      etcd
+      --advertise-client-urls=https://10.94.5.6:2379
+      --cert-file=/etc/kubernetes/pki/etcd/server.crt
+      --client-cert-auth=true
+      --data-dir=/var/lib/etcd
+      --initial-advertise-peer-urls=https://10.94.5.6:2380
+      --initial-cluster=controlplane=https://10.94.5.6:2380
+      --key-file=/etc/kubernetes/pki/etcd/server.key
+      --listen-client-urls=https://127.0.0.1:2379,https://10.94.5.6:2379
+      --listen-metrics-urls=http://127.0.0.1:2381
+      --listen-peer-urls=https://10.94.5.6:2380
+      --name=controlplane
+      --peer-cert-file=/etc/kubernetes/pki/etcd/peer.crt
+      --peer-client-cert-auth=true
+      --peer-key-file=/etc/kubernetes/pki/etcd/peer.key
+      --peer-trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+      --snapshot-count=10000
+      --trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+    State:          Running
+      Started:      Fri, 21 May 2021 16:22:43 +0000
+    Ready:          True
+    Restart Count:  0
+    Requests:
+      cpu:                100m
+      ephemeral-storage:  100Mi
+      memory:             100Mi
+    Liveness:             http-get http://127.0.0.1:2381/health delay=10s timeout=15s period=10s #success=1 #failure=8
+    Startup:              http-get http://127.0.0.1:2381/health delay=10s timeout=15s period=10s #success=1 #failure=24
+    Environment:          <none>
+    Mounts:
+      /etc/kubernetes/pki/etcd from etcd-certs (rw)
+      /var/lib/etcd from etcd-data (rw)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  etcd-certs:
+    Type:          HostPath (bare host directory volume)
+    Path:          /etc/kubernetes/pki/etcd
+    HostPathType:  DirectoryOrCreate
+  etcd-data:
+    Type:          HostPath (bare host directory volume)
+    Path:          /var/lib/etcd
+    HostPathType:  DirectoryOrCreate
+QoS Class:         Burstable
+Node-Selectors:    <none>
+Tolerations:       :NoExecute op=Exists
+Events:
+  Type    Reason  Age   From     Message
+  ----    ------  ----  ----     -------
+  Normal  Pulled  16m   kubelet  Container image "k8s.gcr.io/etcd:3.4.13-0" already present on machine
+root@controlplane:~#
+
+
+######################################################
+deployment.apps/coredns
+configMap coredns
+pod/coredns-74ff55c5b-9hzn6
+######################################################
+
+root@controlplane:~# k describe deployment.apps/coredns
+Name:                   coredns
+Namespace:              kube-system
+CreationTimestamp:      Sat, 22 May 2021 07:01:22 +0000
+Labels:                 k8s-app=kube-dns
+Annotations:            deployment.kubernetes.io/revision: 1
+Selector:               k8s-app=kube-dns
+Replicas:               2 desired | 2 updated | 2 total | 2 available | 0 unavailable
+StrategyType:           RollingUpdate
+MinReadySeconds:        0
+RollingUpdateStrategy:  1 max unavailable, 25% max surge
+Pod Template:
+  Labels:           k8s-app=kube-dns
+  Service Account:  coredns
+  Containers:
+   coredns:
+    Image:       k8s.gcr.io/coredns:1.7.0
+    Ports:       53/UDP, 53/TCP, 9153/TCP
+    Host Ports:  0/UDP, 0/TCP, 0/TCP
+    Args:
+      -conf
+      /etc/coredns/Corefile
+    Limits:
+      memory:  170Mi
+    Requests:
+      cpu:        100m
+      memory:     70Mi
+    Liveness:     http-get http://:8080/health delay=60s timeout=5s period=10s #success=1 #failure=5
+    Readiness:    http-get http://:8181/ready delay=0s timeout=1s period=10s #success=1 #failure=3
+    Environment:  <none>
+    Mounts:
+      /etc/coredns from config-volume (ro)
+  Volumes:
+   config-volume:
+    Type:               ConfigMap (a volume populated by a ConfigMap)
+    Name:               coredns
+    Optional:           false
+  Priority Class Name:  system-cluster-critical
+Conditions:
+  Type           Status  Reason
+  ----           ------  ------
+  Available      True    MinimumReplicasAvailable
+  Progressing    True    NewReplicaSetAvailable
+OldReplicaSets:  <none>
+NewReplicaSet:   coredns-74ff55c5b (2/2 replicas created)
+Events:
+  Type    Reason             Age   From                   Message
+  ----    ------             ----  ----                   -------
+  Normal  ScalingReplicaSet  30m   deployment-controller  Scaled up replica set coredns-74ff55c5b to 2
+root@controlplane:~#
+
+root@controlplane:/etc# k describe cm coredns
+Name:         coredns
+Namespace:    kube-system
+Labels:       <none>
+Annotations:  <none>
+
+Data
+====
+Corefile:
+----
+.:53 {
+    errors
+    health {
+       lameduck 5s
+    }
+    ready
+    kubernetes cluster.local in-addr.arpa ip6.arpa {
+       pods insecure
+       fallthrough in-addr.arpa ip6.arpa
+       ttl 30
+    }
+    prometheus :9153
+    forward . /etc/resolv.conf {
+       max_concurrent 1000
+    }
+    cache 30
+    loop
+    reload
+    loadbalance
+}
+
+Events:  <none>
+root@controlplane:/etc#
+
+
+root@controlplane:~# k describe  pod/coredns-74ff55c5b-qxw7b
+Name:                 coredns-74ff55c5b-qxw7b
+Namespace:            kube-system
+Priority:             2000000000
+Priority Class Name:  system-cluster-critical
+Node:                 controlplane/10.104.100.6
+Start Time:           Sat, 22 May 2021 05:58:19 +0000
+Labels:               k8s-app=kube-dns
+                      pod-template-hash=74ff55c5b
+Annotations:          <none>
+Status:               Running
+IP:                   10.244.0.3
+IPs:
+  IP:           10.244.0.3
+Controlled By:  ReplicaSet/coredns-74ff55c5b
+Containers:
+  coredns:
+    Container ID:  docker://60f0b795371c5944e667f5bfdb4e6831756054c03c976c4bae0808f6dc70493f
+    Image:         k8s.gcr.io/coredns:1.7.0
+    Image ID:      docker-pullable://k8s.gcr.io/coredns@sha256:73ca82b4ce829766d4f1f10947c3a338888f876fbed0540dc849c89ff256e90c
+    Ports:         53/UDP, 53/TCP, 9153/TCP
+    Host Ports:    0/UDP, 0/TCP, 0/TCP
+    Args:
+      -conf
+      /etc/coredns/Corefile
+    State:          Running
+      Started:      Sat, 22 May 2021 05:58:25 +0000
+    Ready:          True
+    Restart Count:  0
+    Limits:
+      memory:  170Mi
+    Requests:
+      cpu:        100m
+      memory:     70Mi
+    Liveness:     http-get http://:8080/health delay=60s timeout=5s period=10s #success=1 #failure=5
+    Readiness:    http-get http://:8181/ready delay=0s timeout=1s period=10s #success=1 #failure=3
+    Environment:  <none>
+    Mounts:
+      /etc/coredns from config-volume (ro)
+      /var/run/secrets/kubernetes.io/serviceaccount from coredns-token-x8lx8 (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  config-volume:
+    Type:      ConfigMap (a volume populated by a ConfigMap)
+    Name:      coredns
+    Optional:  false
+  coredns-token-x8lx8:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  coredns-token-x8lx8
+    Optional:    false
+QoS Class:       Burstable
+Node-Selectors:  kubernetes.io/os=linux
+Tolerations:     CriticalAddonsOnly op=Exists
+                 node-role.kubernetes.io/control-plane:NoSchedule
+                 node-role.kubernetes.io/master:NoSchedule
+                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:          <none>
+root@controlplane:~#
+
+
+######################################################
+
+######################################################
+
+controlplane $ pwd
+/etc/kubernetes
+controlplane $ find .
+./kubelet.conf
+./pki
+./pki/front-proxy-client.crt
+./pki/ca.crt
+./pki/apiserver-etcd-client.crt
+./pki/front-proxy-ca.crt
+./pki/ca.key
+./pki/front-proxy-ca.key
+./pki/apiserver.key
+./pki/front-proxy-client.key
+./pki/apiserver-kubelet-client.crt
+./pki/apiserver-etcd-client.key
+./pki/sa.key
+./pki/apiserver-kubelet-client.key
+./pki/etcd
+./pki/etcd/ca.crt
+./pki/etcd/ca.key
+./pki/etcd/healthcheck-client.key
+./pki/etcd/server.crt
+./pki/etcd/peer.crt
+./pki/etcd/healthcheck-client.crt
+./pki/etcd/peer.key
+./pki/etcd/server.key
+./pki/sa.pub
+./pki/apiserver.crt
+./scheduler.conf
+./admin.conf
+./manifests
+./manifests/etcd.yaml
+./manifests/kube-controller-manager.yaml
+./manifests/kube-apiserver.yaml
+./manifests/kube-scheduler.yaml
+./controller-manager.conf
+controlplane $
+
+
+
+controlplane $ find . | grep -v pki
+.
+./kubelet.conf
+./scheduler.conf
+./admin.conf
+./manifests
+./manifests/etcd.yaml
+./manifests/kube-controller-manager.yaml
+./manifests/kube-apiserver.yaml
+./manifests/kube-scheduler.yaml
+./controller-manager.conf
+controlplane $ cat ./kubelet.conf
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM1ekNDQWMrZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeE1EVXlNVEV6TlRjeU9Gb1hEVE14TURVeE9URXpOVGN5T0Zvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTVNSCkJjaTJaS0NLaWVNTFo3cUdzL2dZc09XQzV4QjB5UXJldWx1TFN2cXQ4Z2o3ZFUxQ1dBaXZyZm9JQXRGTVdCc2oKRjlsM3M2UzVKWHd5bnhZVDV1bFpFRXJFcGpOODJpZkUxcXZQNWN1WHNsazRiRHBCUUFMZ1ZQNnR4OXAvNGk1YwpoUWpma1dkaWV1TG9MQ2NKOE4yMG43eVlxMWtCczVmT1Z5Qld1ZE9OWmFEbFlMUFluSVNMTHlCODR1UHNncGc5CkU1YndscVpnaGdLZnpTL3VHUzhRNUlmb1dYQU9ENDFEK1NEdEExUENWUWlvdDErQUorcUVOODVUdTg0VC8xb1MKaTREOGU2Z2RsR1VMb0RqbkdEOFd4K2VIWXpMd2c2aklUWVlaUkp4OUExWTdmcUhBZGdjVUhKZHliVjR0RmdQegpCa0dtakFkNm1CRThINGUvenNjQ0F3RUFBYU5DTUVBd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZBRW4zZmFxN0NZdGs4aDV0Y0oxRnY4M05QWUFNQTBHQ1NxR1NJYjMKRFFFQkN3VUFBNElCQVFDN1hRbmQ0VUVJZTBUNGhGTHFyWFp3am5ITTFOVGk1SUZQVStMdTViMURMc3Y4WVdabwplWlJkQ0pCUzdzb0NHNFZpZlRHMzBkN1JNelBqdm90TnRvaEZwalE2MWRDd2l6YTlMMmt6Y25jL2p3V1ZLNFVpCkc2dzEwbkEzWjFYc20zRDZOdk9rNXdnNGlDclNhU3lmQjdONGo5cUZwSnNSdTNCNE1xUXVEUTM0Ly9DZlhsYkwKZW5Fc2NTSDdKTHJXNmovKy8xcFJhcWxmeGZxcFdxTkJENkp5YkxHUVN0YXEyN3pDSDhIWmdwU0NyL1NDRkw5dQpFWmIrSTNNbkpudjRXc2FSNHczUGhpV1V4TUkwRjdjSUN2QXBRS0t0NGFzVE45QisyMGlWamtzY2xjSHhGK3Y3CnhEZkFaaldieDNCQ05EamVCcytxTVpFTm1XY1JFN1J1a0w3YgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    server: https://172.17.0.12:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: system:node:controlplane
+  name: system:node:controlplane@kubernetes
+current-context: system:node:controlplane@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: system:node:controlplane
+  user:
+    client-certificate: /var/lib/kubelet/pki/kubelet-client-current.pem
+    client-key: /var/lib/kubelet/pki/kubelet-client-current.pem
+controlplane $ cat ./scheduler.conf
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM1ekNDQWMrZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeE1EVXlNVEV6TlRjeU9Gb1hEVE14TURVeE9URXpOVGN5T0Zvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTVNSCkJjaTJaS0NLaWVNTFo3cUdzL2dZc09XQzV4QjB5UXJldWx1TFN2cXQ4Z2o3ZFUxQ1dBaXZyZm9JQXRGTVdCc2oKRjlsM3M2UzVKWHd5bnhZVDV1bFpFRXJFcGpOODJpZkUxcXZQNWN1WHNsazRiRHBCUUFMZ1ZQNnR4OXAvNGk1YwpoUWpma1dkaWV1TG9MQ2NKOE4yMG43eVlxMWtCczVmT1Z5Qld1ZE9OWmFEbFlMUFluSVNMTHlCODR1UHNncGc5CkU1YndscVpnaGdLZnpTL3VHUzhRNUlmb1dYQU9ENDFEK1NEdEExUENWUWlvdDErQUorcUVOODVUdTg0VC8xb1MKaTREOGU2Z2RsR1VMb0RqbkdEOFd4K2VIWXpMd2c2aklUWVlaUkp4OUExWTdmcUhBZGdjVUhKZHliVjR0RmdQegpCa0dtakFkNm1CRThINGUvenNjQ0F3RUFBYU5DTUVBd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZBRW4zZmFxN0NZdGs4aDV0Y0oxRnY4M05QWUFNQTBHQ1NxR1NJYjMKRFFFQkN3VUFBNElCQVFDN1hRbmQ0VUVJZTBUNGhGTHFyWFp3am5ITTFOVGk1SUZQVStMdTViMURMc3Y4WVdabwplWlJkQ0pCUzdzb0NHNFZpZlRHMzBkN1JNelBqdm90TnRvaEZwalE2MWRDd2l6YTlMMmt6Y25jL2p3V1ZLNFVpCkc2dzEwbkEzWjFYc20zRDZOdk9rNXdnNGlDclNhU3lmQjdONGo5cUZwSnNSdTNCNE1xUXVEUTM0Ly9DZlhsYkwKZW5Fc2NTSDdKTHJXNmovKy8xcFJhcWxmeGZxcFdxTkJENkp5YkxHUVN0YXEyN3pDSDhIWmdwU0NyL1NDRkw5dQpFWmIrSTNNbkpudjRXc2FSNHczUGhpV1V4TUkwRjdjSUN2QXBRS0t0NGFzVE45QisyMGlWamtzY2xjSHhGK3Y3CnhEZkFaaldieDNCQ05EamVCcytxTVpFTm1XY1JFN1J1a0w3YgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    server: https://172.17.0.12:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: system:kube-scheduler
+  name: system:kube-scheduler@kubernetes
+current-context: system:kube-scheduler@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: system:kube-scheduler
+  user:
+    client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUMvekNDQWVlZ0F3SUJBZ0lJWGgrM05DNW1RaFl3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TVRBMU1qRXhNelUzTWpoYUZ3MHlNakExTWpFeE16VTNNekphTUNBeApIakFjQmdOVkJBTVRGWE41YzNSbGJUcHJkV0psTFhOamFHVmtkV3hsY2pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCCkJRQURnZ0VQQURDQ0FRb0NnZ0VCQU1sYlZNL1VoNlY4TkkzdHlhREVvU3N0WUEvU2RiNEZ0ak9SbVlDUUZvWUkKYS9XSHAvVmN0ZkMybmtKM1prMXdmaG9oL0ZJMkJFQ2dCNUZFMy9xSGV6R3czWi8xZzF4c2tkYzBrTXAvYlMrYQpXTDUwTHMwczRMcnVCTzRZbnU2Zzc1ZlFEbGVtbDNQaGFCc3hTRTZ2aW94cU4zaFlNRGVBaVVMdXgzODZNWWM3CjVZWDZGL0NaQnNWVFZBZGk3QktjVHRCUjZXMTR4OEVFSFRoSjNtVm9xby93MzFjaTV0UlBmWnhGZnR6YWg5RjYKQ1IxTTc0Ync3TTR1OTRWTnZtZGo4N0t5dml1dEpRS1YzMFdrSWhXMlkzUFN2MnNRYjIrUmdZSFFiTkYwcjhaNQpqRzlLREUzc2R3bHN5Yjh0RE5CRmNBWjEwbDVYb1Bjb2UreTcwaUpVRDVNQ0F3RUFBYU5JTUVZd0RnWURWUjBQCkFRSC9CQVFEQWdXZ01CTUdBMVVkSlFRTU1Bb0dDQ3NHQVFVRkJ3TUNNQjhHQTFVZEl3UVlNQmFBRkFFbjNmYXEKN0NZdGs4aDV0Y0oxRnY4M05QWUFNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUNoUW11MkRGbTRnakZjREtmNApnNTJxenJ5STI5WVY5S3grS1N2SFE5TU5SMG5vRktScmRZSENQZ09mY05RdjQ1LzRXb1Y0YjR6ZUJJQW1LU1piCkt4Y3VLZDNtd0ltTWhqeDcyd2VOTmdWZFYrLzB0ckYwQVczNTVFRHJPSWhSUi94VmpQMkl5LzBpd2FxNHdSNzAKRkFDQktWbnRWUlRzK1ZjRnhaRkROVEtFRC9obVpYQnFpdVJLYVJPbHVqaXdMbHBmb3ZOR2JJOEUvOGE3V0VUMQpKcWd5V2ViMUlVOS90WEF2T1VLZTc5eEozOHRLa3dITytHUUFvUmJ0ZlhBVlJFUWliczdxR1FkM2k0c3QwOXIxCmd3NEsxTWFqSFB0Tm9wZExyeDZUM2FoV0QzVUkxTEM1V2RraitkS0pSMXB6dkF1VjlFTURkd3RjdVROVzFsUHoKQXlVNgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    client-key-data: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcFFJQkFBS0NBUUVBeVZ0VXo5U0hwWHcwamUzSm9NU2hLeTFnRDlKMXZnVzJNNUdaZ0pBV2hnaHI5WWVuCjlWeTE4TGFlUW5kbVRYQitHaUg4VWpZRVFLQUhrVVRmK29kN01iRGRuL1dEWEd5UjF6U1F5bjl0TDVwWXZuUXUKelN6Z3V1NEU3aGllN3FEdmw5QU9WNmFYYytGb0d6RklUcStLakdvM2VGZ3dONENKUXU3SGZ6b3hoenZsaGZvWAo4SmtHeFZOVUIyTHNFcHhPMEZIcGJYakh3UVFkT0VuZVpXaXFqL0RmVnlMbTFFOTluRVYrM05xSDBYb0pIVXp2Cmh2RHN6aTczaFUyK1oyUHpzcksrSzYwbEFwWGZSYVFpRmJaamM5Sy9heEJ2YjVHQmdkQnMwWFN2eG5tTWIwb00KVGV4M0NXekp2eTBNMEVWd0JuWFNYbGVnOXloNzdMdlNJbFFQa3dJREFRQUJBb0lCQVFDUjdqQThZNUpmbS9IVwp2dlEzSU9xUmlWUXFnMlF6OEozSktBZXhCanhjclhQWXdaVTNuUlo3TzA3ZGF2MW91Rk9jQ3U5OGdZdDVic0d0ClJkWnlFb2gxVGZLQlFJVVFrZHJzdGpzTmwyYUJib0pNblpWaHU5bXZnRnR3VjhXdnVsR0tuQTRZOWpLam1FUkUKR09hSHFHOW9MbjYvS0dMaGhyVjBIZXZWeUU0bTdEV1V1TEtDdm1zWU9MdVlja2puUndwSVhNZUdlMEtiZm9LeApzM1hCdmdZYVRuZlJLc1ZaRkhRUlpiN0Zwc1poeVV0eDd6OGFuNm8vM09HSms1ZzFob3d5a0lpd0gyOXh0MFI3ClBZaHFJam4ySlpkclRSeDZQUVI3bm1kVkhPRTRZQzhTT0ZnQ0UyRXBiMDZHUkI3MlFqd29pWXdjYW5mdVZQbm0KT1kyZ2pkaXBBb0dCQU1tZUNDUTNhQ0JySGVsS3V2WW1FaGVrMUR2OVlvRjcxdTByT2hWQW4vWXV6ZnlrYzJQWgpQdFFnRVhxK0cwUjhONk8yb2hCZ1lTd3VyUEJaT0JnZEdRWGwvYjViSWdPbi8yU0xQb3d0Q3N4bUVZaDRLVThTClRTWHhvclhXS3h0bFlUWDcxQ0hLMThpSnNZeTVabCtsZEFWRXl3MFQ0YkxjVWg2aWU3ZmRLem9mQW9HQkFQK3IKVHVkTmltZG9kSEpJSGtFZ0FlNVlqMnA5VTFjeUVFZjI2S0JSOVF3bE9GTlhlSGsxdFJQWk8zMm9oTU1GSlp1YwpUWnlNcFZiZDMyMEs2TmhmS0hEajNQVS9Qb1F6eFp5OWtPSkI0OG9Fam9hWm40TmVNUCs3eHdNYXcwWkFwczlFClZIQk9kLzQ1NEh0eHZjbVRMaERRQVd5eTNSYmFWK1dGbXlISjBtUU5Bb0dCQUkySGZ1V1ZjMlhXYTgvWllyYnAKOEtkaVVJMndDRmNteksvK09TNjBCOVl6OHV0WHNaeTA0dExibEFtYXE5OStaenhvTnduUjdrU3FtMEc1RDVSMQowSndBWUFnaFJ4WlQ5d2JvYkViUVU1VTZUVEtFVDFNdllMS3pGZW9aWm5jN3ltcXYxYkRIQ0lUQWk3OWlZa2ZnCkNEcXVtTzhjTnNKc3dNUzZnS2lIL0JFM0FvR0JBT0czV1BMR04xR3lHMVFscldncm5PalRFTktnRUdyanpSSHIKdjFhQzVNZXpPSFlEdkYydWQ4NHRNK050V3NCZUUrUzg2cHd5WTJvOGVadG9UVWR4UTEvZkc5ejgxL0daVDNaZwp1YiszRWlieFBPOUNRMXlVVk1nQi9PSVZ4NTZIUjMyblFyRGY1Zm54R09tQzhsNDY3U2wwcWoxUDcvYlVEMU9ZClQreFZwTVFsQW9HQVFhZ2ozYnNIL3FKM2RnWkdScVdZWElVcHZtWHVvcEtPMFdOZ1ZSTjR2YVdKb3ZtLzduOG4KMU5oNlpFZ0UzREZlR2xoc0pzMmdveVIyNU1Pc1ZIYWVUYzNwSEtzam9QVG5NRzc5dGtGWEhOdW5zMjJBYnZRdApsZ0QrQWg4Mnd2UTllM3F0dXBQZmwzVUJnYWJuZllzajFweWhxSy9kT3pwY0doQjZyR3dNWUdNPQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+controlplane $ cat ./admin.conf
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM1ekNDQWMrZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeE1EVXlNVEV6TlRjeU9Gb1hEVE14TURVeE9URXpOVGN5T0Zvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTVNSCkJjaTJaS0NLaWVNTFo3cUdzL2dZc09XQzV4QjB5UXJldWx1TFN2cXQ4Z2o3ZFUxQ1dBaXZyZm9JQXRGTVdCc2oKRjlsM3M2UzVKWHd5bnhZVDV1bFpFRXJFcGpOODJpZkUxcXZQNWN1WHNsazRiRHBCUUFMZ1ZQNnR4OXAvNGk1YwpoUWpma1dkaWV1TG9MQ2NKOE4yMG43eVlxMWtCczVmT1Z5Qld1ZE9OWmFEbFlMUFluSVNMTHlCODR1UHNncGc5CkU1YndscVpnaGdLZnpTL3VHUzhRNUlmb1dYQU9ENDFEK1NEdEExUENWUWlvdDErQUorcUVOODVUdTg0VC8xb1MKaTREOGU2Z2RsR1VMb0RqbkdEOFd4K2VIWXpMd2c2aklUWVlaUkp4OUExWTdmcUhBZGdjVUhKZHliVjR0RmdQegpCa0dtakFkNm1CRThINGUvenNjQ0F3RUFBYU5DTUVBd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZBRW4zZmFxN0NZdGs4aDV0Y0oxRnY4M05QWUFNQTBHQ1NxR1NJYjMKRFFFQkN3VUFBNElCQVFDN1hRbmQ0VUVJZTBUNGhGTHFyWFp3am5ITTFOVGk1SUZQVStMdTViMURMc3Y4WVdabwplWlJkQ0pCUzdzb0NHNFZpZlRHMzBkN1JNelBqdm90TnRvaEZwalE2MWRDd2l6YTlMMmt6Y25jL2p3V1ZLNFVpCkc2dzEwbkEzWjFYc20zRDZOdk9rNXdnNGlDclNhU3lmQjdONGo5cUZwSnNSdTNCNE1xUXVEUTM0Ly9DZlhsYkwKZW5Fc2NTSDdKTHJXNmovKy8xcFJhcWxmeGZxcFdxTkJENkp5YkxHUVN0YXEyN3pDSDhIWmdwU0NyL1NDRkw5dQpFWmIrSTNNbkpudjRXc2FSNHczUGhpV1V4TUkwRjdjSUN2QXBRS0t0NGFzVE45QisyMGlWamtzY2xjSHhGK3Y3CnhEZkFaaldieDNCQ05EamVCcytxTVpFTm1XY1JFN1J1a0w3YgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    server: https://172.17.0.12:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: kubernetes-admin
+  name: kubernetes-admin@kubernetes
+current-context: kubernetes-admin@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: kubernetes-admin
+  user:
+    client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURFekNDQWZ1Z0F3SUJBZ0lJV2RRSjVIUHBNT0l3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TVRBMU1qRXhNelUzTWpoYUZ3MHlNakExTWpFeE16VTNNekZhTURReApGekFWQmdOVkJBb1REbk41YzNSbGJUcHRZWE4wWlhKek1Sa3dGd1lEVlFRREV4QnJkV0psY201bGRHVnpMV0ZrCmJXbHVNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQXZDTnFEelB5M0tqcGh6cTUKbENaR3ZwQUtldEFSQTB4YWdkZlhXQy9GQlNkUkh4SndycGN5NVU4ZVpnWmc4dHFMcGdLbkJuS2pJWnV0ZmNsSApXelFvT3JjNkg4azRrY0JPeFRySEcrR0oxUk9mUnBJNlZROE1DNk0yak1LNks1R3l0MzJtVjFDYTB1b3hZdUNWCjBTKytaZGhHdThFZldXSEU3S09BS2pTSU03ek9Od0hPVlZweVZ3Y0pSbm1YN1FobUFjV1A4T2VCZVZzbVNPRWwKK2VycVNIS3M1RE9tS29nL3BwRHFvU2xJRGhQbXR1eld3dG9GclFqQUV4VXE1dXBXb01maTRBSU5rbW1TR0ttZApFOWUyL1dqZTB6T0gwU3VJZ29FSnpuMzhOZit4endnOTZoM2w3YXlQV1RhdDZPbDBTVEtndDV4K3pSMFJqS3NkCmFUSnp1UUlEQVFBQm8wZ3dSakFPQmdOVkhROEJBZjhFQkFNQ0JhQXdFd1lEVlIwbEJBd3dDZ1lJS3dZQkJRVUgKQXdJd0h3WURWUjBqQkJnd0ZvQVVBU2ZkOXFyc0ppMlR5SG0xd25VVy96YzA5Z0F3RFFZSktvWklodmNOQVFFTApCUUFEZ2dFQkFIK20rYWtRbzBPVlJVTy9CRjFXdWUyb0xyMVIzSUk4UmJDd2VkSDh0SFIyUW9uNURGcUxJWE1TCnU3TlhmRXNXclFFNHNWeGZjTkQyYjNuWkJZbE13RFVsWmgwV2hCR1NEZGJFTlVmb1diZjNoV1VkSE0xQSthdkwKT0twOXdlS01VbjQ4TytUSFJKUjBGb1BxNWFCMHh0KzBQb2EwVXlNNXFhZ3kxRUJKSi9YS0oxTU4vQ3NoQVVNcQphUldWdk1uSDVzd3dBNzFJRDRnYm5yR3BqVmgvRHUvL0FySFQwbk1EeFRWbkVLdHBEaHVoMjBiRU5GUVdBMFVMCmY4TUVMbThOL2hkV0lWVEdTd0ttKzlId1BtekNBSTNVY0FzdnJoQ3pJV1NTdmphY3VKV1IrUDNyemI2YlcrOWUKdUo2emVWWG8wQUNlRTdqclZRM21UbVRsUTZOcDgrRT0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+    client-key-data: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb2dJQkFBS0NBUUVBdkNOcUR6UHkzS2pwaHpxNWxDWkd2cEFLZXRBUkEweGFnZGZYV0MvRkJTZFJIeEp3CnJwY3k1VThlWmdaZzh0cUxwZ0tuQm5LakladXRmY2xIV3pRb09yYzZIOGs0a2NCT3hUckhHK0dKMVJPZlJwSTYKVlE4TUM2TTJqTUs2SzVHeXQzMm1WMUNhMHVveFl1Q1YwUysrWmRoR3U4RWZXV0hFN0tPQUtqU0lNN3pPTndITwpWVnB5VndjSlJubVg3UWhtQWNXUDhPZUJlVnNtU09FbCtlcnFTSEtzNURPbUtvZy9wcERxb1NsSURoUG10dXpXCnd0b0ZyUWpBRXhVcTV1cFdvTWZpNEFJTmttbVNHS21kRTllMi9XamUwek9IMFN1SWdvRUp6bjM4TmYreHp3ZzkKNmgzbDdheVBXVGF0Nk9sMFNUS2d0NXgrelIwUmpLc2RhVEp6dVFJREFRQUJBb0lCQUZ6VDNIREQ0UUNmRnhweQpEejdaNCs0Q2hDazBvREJRYkJmRXQ2djdaZXExQzRHWlI1L2RXbTlxS2tXTXdDa1RTL1FOT3Z3amMvb1JKZmo2Clp3ckpJVkJYTjRhWGNpSDRFT1dmcXI1RytncjRNNDVPZUJtZjR3R2E5ajlkbFI0S05YUHp1eTg1eGlwckF4TVcKWE5WcUNUZVhEczkwNmxMZnVwcEgwZVVCSm5MZnpRQ3pSSkpEd0s3bjNPV1hOZDFJY05hSWxRMFVFaTV5WU4xNApBajFWNmtKckFObkVPQ2RTWTJWeEVhaWtLVlpuZnVBd2YvYTk5NnVRRE1ZZytYL0cyME00czBieHVDUjc5Z1pIClRFYjNyckhpbStuREpzWUF3d3htSFRZS0tkM2tSTTA4UXZKY2ZZM0dBTnpKSlkwUWNlM3Mrbnh6d2ZFZStzNUEKMzZUbXVRRUNnWUVBMXFzM2NSaHE2aUJlK2I0UmRFazZrNUJCTlVvUGVTZEY0QVVYU1gvdEIzaW8wd1c4b2I0Qgp5UVVvU0J6RUtBNTBKbGpjQUpCblhSb3BORWE2b2NrOFlZL0hVMTR4NUxmOGMyZ2hCTHAvN2F2QmR3bHlSc2NYCmV0bmtXMlZ4MGpPV0hWVHkrb0JXUjBBUE54Zmp1YmZZMit4akx4cDVsYjRWaDI4LzNPK0RNYzBDZ1lFQTRGeUsKV3Frc0x3Uk5CS2pOUWdGTXdwNG9MRjlVYmFMOU5tNm96WHkydzVXN1lvSVZGaEQ4YjFrcjUxbEgrYWthRXFSZgpYdkY3aWJlc1RqQVBqTWlOOHZXOG5UQzBiUlJJTFB4TnJHQm5zN1dXRWE1bXpyWG82ZlhPNUtmUlEyZ0VPUUpmCkhFaDRVenB4aHhuWnRsUGFBaVVWaldnVFY3ckpZSFpnSHgyTGpaMENnWUJkMUwwSkhDa3ZhVExhYXUvcUtsQUcKVEJtVWwyaW9CamlPc09yNjM0WFZyREh1K3lUMmRiMEdCdEVTcERCQmFmL3Urd3crMnQrelhFb0NaYUFTTTRuSApBemVYQXljLzJBUHExZXNJekJRNjZNWkpwOEZobW9oeTFHYnlaQ2NhUUI0dmVBQTA2bi9MNlA0OWtKMmpnZTZ5ClFtTWdKYXhiZlppZmVFc3I0UzB4U1FLQmdCMGR4Vks0cTZRNllhaGVJNjBTTUJ6OW0yY094QTBxWHNRR25sOTAKZE45eStndHhxRHpoM1hDeDJOSEFNMmdCK3dFNlZhb2ptbzJueVhPb0p3eDFKbjdHUjBEN0JoODF4NXdXN2htVgp0VCtNTERxRk1KQlk2UzRibVVyeFFHWUlCS3hGVTRSL0h5Wmw2ai9IS2dyUVhQVjBUSlM2VWZCTHJFQ1pmQ1h0CmxxTzlBb0dBU2hnV2JZbVdFY1JJVnQvdUxYcFBZVURDOEp5Y2k4VjIxZXpFNS8zTERzSjBMTVBhV1JyYjFSci8KaFpYcUNBYklEQ3BkQThNY0p0NnN0QmtiRlF0WjNqeXZudGVKOG9FYnl2QmhyeS8wb3IwaWtkNTFJV01ITXJMMAp6RXZ4ek9jQW5KVWtHZlFNMUI1akZuU3kzVEFZdXVLTmZNNkU5M09XTnRNL0hwMWFOeW89Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+
+controlplane $ cat ./controller-manager.conf
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM1ekNDQWMrZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeE1EVXlNVEV6TlRjeU9Gb1hEVE14TURVeE9URXpOVGN5T0Zvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTVNSCkJjaTJaS0NLaWVNTFo3cUdzL2dZc09XQzV4QjB5UXJldWx1TFN2cXQ4Z2o3ZFUxQ1dBaXZyZm9JQXRGTVdCc2oKRjlsM3M2UzVKWHd5bnhZVDV1bFpFRXJFcGpOODJpZkUxcXZQNWN1WHNsazRiRHBCUUFMZ1ZQNnR4OXAvNGk1YwpoUWpma1dkaWV1TG9MQ2NKOE4yMG43eVlxMWtCczVmT1Z5Qld1ZE9OWmFEbFlMUFluSVNMTHlCODR1UHNncGc5CkU1YndscVpnaGdLZnpTL3VHUzhRNUlmb1dYQU9ENDFEK1NEdEExUENWUWlvdDErQUorcUVOODVUdTg0VC8xb1MKaTREOGU2Z2RsR1VMb0RqbkdEOFd4K2VIWXpMd2c2aklUWVlaUkp4OUExWTdmcUhBZGdjVUhKZHliVjR0RmdQegpCa0dtakFkNm1CRThINGUvenNjQ0F3RUFBYU5DTUVBd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZBRW4zZmFxN0NZdGs4aDV0Y0oxRnY4M05QWUFNQTBHQ1NxR1NJYjMKRFFFQkN3VUFBNElCQVFDN1hRbmQ0VUVJZTBUNGhGTHFyWFp3am5ITTFOVGk1SUZQVStMdTViMURMc3Y4WVdabwplWlJkQ0pCUzdzb0NHNFZpZlRHMzBkN1JNelBqdm90TnRvaEZwalE2MWRDd2l6YTlMMmt6Y25jL2p3V1ZLNFVpCkc2dzEwbkEzWjFYc20zRDZOdk9rNXdnNGlDclNhU3lmQjdONGo5cUZwSnNSdTNCNE1xUXVEUTM0Ly9DZlhsYkwKZW5Fc2NTSDdKTHJXNmovKy8xcFJhcWxmeGZxcFdxTkJENkp5YkxHUVN0YXEyN3pDSDhIWmdwU0NyL1NDRkw5dQpFWmIrSTNNbkpudjRXc2FSNHczUGhpV1V4TUkwRjdjSUN2QXBRS0t0NGFzVE45QisyMGlWamtzY2xjSHhGK3Y3CnhEZkFaaldieDNCQ05EamVCcytxTVpFTm1XY1JFN1J1a0w3YgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    server: https://172.17.0.12:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: system:kube-controller-manager
+  name: system:kube-controller-manager@kubernetes
+current-context: system:kube-controller-manager@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: system:kube-controller-manager
+  user:
+    client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURDRENDQWZDZ0F3SUJBZ0lJUkE1cmxRYUFuZm93RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TVRBMU1qRXhNelUzTWpoYUZ3MHlNakExTWpFeE16VTNNekZhTUNreApKekFsQmdOVkJBTVRIbk41YzNSbGJUcHJkV0psTFdOdmJuUnliMnhzWlhJdGJXRnVZV2RsY2pDQ0FTSXdEUVlKCktvWklodmNOQVFFQkJRQURnZ0VQQURDQ0FRb0NnZ0VCQU45RHV3dU1FNU5kUjJXeWJwSmhXSWdEV09pTEN3RXAKKzdHQzN6ZHN6WHdMV0xKZm1XSTR5WHphVmFRd1pHK2w0S1lQSnpFeEdSSHQvRHhRNjFwSnYwTVd3c2JiUGFKWApJRkdyT0lOWERDTWtGam9ZY3pDaEVRQlpCSFAxMnlPWUFDZ1FJNkIwcFJtdUlOazl0UUdLVElOUVFhTG9BTU9uCjlkL3JCRU5VZ1lESXB2Z0xmMU5HRlNIWExUM1hUbHBLbnl5dElBZG41RUpFeEpqejQ3TkFUdlJwNWYyNWJjY1MKUWg4RWZGbHVEUEV1Yy9BSnhsWTBqRmRZSXZ2dEJmeDNQMTdwOUcwU1VXaVRBZyt1dHkrWXdBRWdmZ2hINGd5egozR2Nicnp0TnFuYmw3ZmRXUlRJUmRrUE9JODJXbkhLWkpDK0VoeXhGTlM0MzVpZjU2Q2RMeldNQ0F3RUFBYU5JCk1FWXdEZ1lEVlIwUEFRSC9CQVFEQWdXZ01CTUdBMVVkSlFRTU1Bb0dDQ3NHQVFVRkJ3TUNNQjhHQTFVZEl3UVkKTUJhQUZBRW4zZmFxN0NZdGs4aDV0Y0oxRnY4M05QWUFNQTBHQ1NxR1NJYjNEUUVCQ3dVQUE0SUJBUUNIWEVWWAo2Si8yMXc2Sm05ekFndmNwYURHSWhZd1htZm15dnhZYUFzYzFIeVFIZlFjUW5ZdWowdWhFbG5ubmgvYXRHbTJVCmxHUWF3M2E1NEJzVTRSMk1DV3RYNXpQUEhlV1ErRDJ2ZTFxRm5paU82bzZBbmdYN1E1ZjFlUVNGYjFIU01vNXEKazNwdktDQ2UxSFRJWm5BNUJjajlmaUVGaUVNSmlMdUxqS2Y0TkVycXlwNzhWeXVVNDhUL2tnREhKK01JUFlpcAp3VUd5ekFlV3dBZXNWeXUyOUs4OUJrd1IrNUJlZU1WbE5wYU44T0h5RXZHK3RQWDJ4QUVMVkRZY3hKNGpzeDlyCmNKK2xBeUpqWFRoN2p6TWp4TktJNnhXS2hqd04rYVRLNm5IajFSby9lRkFKeGJzNlFNL0NsMkFZK0NOUEFpOWYKK2lldGNpZnIyMCtBZE5ZSgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    client-key-data: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb3dJQkFBS0NBUUVBMzBPN0M0d1RrMTFIWmJKdWttRllpQU5ZNklzTEFTbjdzWUxmTjJ6TmZBdFlzbCtaCllqakpmTnBWcERCa2I2WGdwZzhuTVRFWkVlMzhQRkRyV2ttL1F4YkN4dHM5b2xjZ1VhczRnMWNNSXlRV09oaHoKTUtFUkFGa0VjL1hiSTVnQUtCQWpvSFNsR2E0ZzJUMjFBWXBNZzFCQm91Z0F3NmYxMytzRVExU0JnTWltK0F0LwpVMFlWSWRjdFBkZE9Xa3FmTEswZ0IyZmtRa1RFbVBQanMwQk85R25sL2JsdHh4SkNId1I4V1c0TThTNXo4QW5HClZqU01WMWdpKyswRi9IYy9YdW4wYlJKUmFKTUNENjYzTDVqQUFTQitDRWZpRExQY1p4dXZPMDJxZHVYdDkxWkYKTWhGMlE4NGp6WmFjY3Bra0w0U0hMRVUxTGpmbUovbm9KMHZOWXdJREFRQUJBb0lCQUc3NUhIeWwySWtVQVV3RQpQNytVa1V1eDFqeG4rRVZRMStFb3VzaXkxUVJHSTRVdHpYQ3I1MEtleDVpLzBQeEp4L3JpWjBtbExOL2ptYzlsCkxVYUloMy9TVFdoSVN6OW83UkNLK2FFVzRGcUxNbDBZRUJGb3phbU5sWkFKOFMyay9OYnRCcmhYb2tTOGIybHIKcVkrbGJWaUx5TVF2YTBuVkwzcG9ONHM3OHM3T2YyczRyR1Rac3lUbmUrQzR2eCtwTlp4MTdBdGR5L3N4WUpCQQpNTTdoUXVTZlJHQkNRcjU2UjU1cFAwenNrSHpzempzQVZWc0FNUERyVXdMMjVNY2Jhb1JBSzgvNW53TDhqS3JICm5saVZLVUI1ck16S1J1VDNjdUZkeGJuNVhqSC8xbXZHdmRTQmlvUU1RZ05KRk95QkkwNERpNy9haWxpMmNSb3IKRTlyTFBha0NnWUVBNHZUb2o3MDVEclpEN2ZxUm1WR0IvN2xFM1NNK3UxcWlnMmFvbWRoQVYwU1RTbW91ZWo4OAprL052dzI0RjQ3R1A5N0VOaHlWNlZQVEFOaE04ZTlYcG1IcFZIN0ZOSW1WYW5Qd1Z6RjVIN0MyZ0liU0V5SnJHCkRrdUlBNlpvK2M2MWVHTnFGU3MyNlkrR3IxRGhoaDZ3Q09xYVVxdnQvSWtBL1RmTWQ0akc5T2NDZ1lFQSs5WGUKZnlsOUpYMDJsZnVlYXhwK3FXTU1oNUVpU2RsVDk2UWhiSjFFdjluaHJrYXZ5eE5jQW9WaVpaMTA1YUN1UDdRVgpydFJqNVZpc2IvbThicGtCMXRXSXhHcmdWLzNMRnZVbWIvT25sdnA3U0I1Y2JVUFRtdWkvdWRMZjlTN0hWRGhsCjNFWVRJZm90VE8zNXIxZDBVNUYvK3M2TWtLMXh2Z1E5VklodFdDVUNnWUFWY0l0VG9NMTJEVlBIZEdjeXM1ZHoKUDk0NGdhN1laZ3g2RzBXTUd2aWhCZEpnTWoybndMZUpSbkxsWkV4Y0lSYjNrQnMyREIxTlR6MmxIaFlWb0xTTAplZXIycm5vWjZMY3hvMEt2NXF3bXJIeTNFbVdFeWRJeDRZSzh6WWlYS0tiTjg1NCsxN0U5U1JpeEVSUHM1cE04CmxHVDFzRll3Q0FVMjVvR0RQVUdHT3dLQmdRRE9OeTN2a09peVp4cm9xOWJvT3hUVzNZMm9BUmREdzV0M1lFWWkKYTVHZFMrdjZTbFd2QTlaSEZqUWhvMUxTcWNXbDBuQWk3all5Mm02eGJwMTNMd0dMaXVWb2VWL2xqYVBjMDdlNgoycGswRHo0ZUt3WmlUclVhMTFZUDh2YUREZUFaUGVsaSsxcTFhdWZuWThNZWFvMk4xTW9vZFRRelVHT2dSbFoyClB4VFNwUUtCZ0dMQXdwMjY1eFZzT1NLTWQwaVNoUTZobjJaWEVDb2JNaWJXTFFVZmNmVzl5b0RIelFZdThyUTEKbnZYblE0aExGMkFEaVo5NFhMSHZoYWNaSVd5OFlTWDZueVRSektwQTk3Q09JaFBIY2dHQnhHYU9IRVBjY2J2MApML2ZENVpPT3FqUzBpV2hVYndwSEc4bks0cWhobGxBVmdVbnd1Y2lZc1VrcklNM2lVbGUvCi0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+controlplane $
+
+controlplane $ cat ./manifests/etcd.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kubeadm.kubernetes.io/etcd.advertise-client-urls: https://172.17.0.12:2379
+  creationTimestamp: null
+  labels:
+    component: etcd
+    tier: control-plane
+  name: etcd
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - etcd
+    - --advertise-client-urls=https://172.17.0.12:2379
+    - --cert-file=/etc/kubernetes/pki/etcd/server.crt
+    - --client-cert-auth=true
+    - --data-dir=/var/lib/etcd
+    - --initial-advertise-peer-urls=https://172.17.0.12:2380
+    - --initial-cluster=controlplane=https://172.17.0.12:2380
+    - --key-file=/etc/kubernetes/pki/etcd/server.key
+    - --listen-client-urls=https://127.0.0.1:2379,https://172.17.0.12:2379
+    - --listen-metrics-urls=http://127.0.0.1:2381
+    - --listen-peer-urls=https://172.17.0.12:2380
+    - --name=controlplane
+    - --peer-cert-file=/etc/kubernetes/pki/etcd/peer.crt
+    - --peer-client-cert-auth=true
+    - --peer-key-file=/etc/kubernetes/pki/etcd/peer.key
+    - --peer-trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+    - --snapshot-count=10000
+    - --trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+    image: k8s.gcr.io/etcd:3.4.9-1
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: 127.0.0.1
+        path: /health
+        port: 2381
+        scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+    name: etcd
+    resources: {}
+    startupProbe:
+      failureThreshold: 24
+      httpGet:
+        host: 127.0.0.1
+        path: /health
+        port: 2381
+        scheme: HTTP
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+    volumeMounts:
+    - mountPath: /var/lib/etcd
+      name: etcd-data
+    - mountPath: /etc/kubernetes/pki/etcd
+      name: etcd-certs
+  hostNetwork: true
+  priorityClassName: system-node-critical
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/pki/etcd
+      type: DirectoryOrCreate
+    name: etcd-certs
+  - hostPath:
+      path: /var/lib/etcd
+      type: DirectoryOrCreate
+    name: etcd-data
+status: {}
+controlplane $ cat ./manifests/kube-controller-manager.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    component: kube-controller-manager
+    tier: control-plane
+  name: kube-controller-manager
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - kube-controller-manager
+    - --allocate-node-cidrs=true
+    - --authentication-kubeconfig=/etc/kubernetes/controller-manager.conf
+    - --authorization-kubeconfig=/etc/kubernetes/controller-manager.conf
+    - --bind-address=127.0.0.1
+    - --client-ca-file=/etc/kubernetes/pki/ca.crt
+    - --cluster-cidr=10.244.0.0/16
+    - --cluster-name=kubernetes
+    - --cluster-signing-cert-file=/etc/kubernetes/pki/ca.crt
+    - --cluster-signing-key-file=/etc/kubernetes/pki/ca.key
+    - --controllers=*,bootstrapsigner,tokencleaner
+    - --kubeconfig=/etc/kubernetes/controller-manager.conf
+    - --leader-elect=true
+    - --node-cidr-mask-size=24
+    - --port=0
+    - --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt
+    - --root-ca-file=/etc/kubernetes/pki/ca.crt
+    - --service-account-private-key-file=/etc/kubernetes/pki/sa.key
+    - --service-cluster-ip-range=10.96.0.0/12
+    - --use-service-account-credentials=true
+    image: k8s.gcr.io/kube-controller-manager:v1.19.0
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10257
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+    name: kube-controller-manager
+    resources:
+      requests:
+        cpu: 200m
+    startupProbe:
+      failureThreshold: 24
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10257
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+    volumeMounts:
+    - mountPath: /etc/ssl/certs
+      name: ca-certs
+      readOnly: true
+    - mountPath: /etc/ca-certificates
+      name: etc-ca-certificates
+      readOnly: true
+    - mountPath: /usr/libexec/kubernetes/kubelet-plugins/volume/exec
+      name: flexvolume-dir
+    - mountPath: /etc/kubernetes/pki
+      name: k8s-certs
+      readOnly: true
+    - mountPath: /etc/kubernetes/controller-manager.conf
+      name: kubeconfig
+      readOnly: true
+    - mountPath: /usr/local/share/ca-certificates
+      name: usr-local-share-ca-certificates
+      readOnly: true
+    - mountPath: /usr/share/ca-certificates
+      name: usr-share-ca-certificates
+      readOnly: true
+  hostNetwork: true
+  priorityClassName: system-node-critical
+  volumes:
+  - hostPath:
+      path: /etc/ssl/certs
+      type: DirectoryOrCreate
+    name: ca-certs
+  - hostPath:
+      path: /etc/ca-certificates
+      type: DirectoryOrCreate
+    name: etc-ca-certificates
+  - hostPath:
+      path: /usr/libexec/kubernetes/kubelet-plugins/volume/exec
+      type: DirectoryOrCreate
+    name: flexvolume-dir
+  - hostPath:
+      path: /etc/kubernetes/pki
+      type: DirectoryOrCreate
+    name: k8s-certs
+  - hostPath:
+      path: /etc/kubernetes/controller-manager.conf
+      type: FileOrCreate
+    name: kubeconfig
+  - hostPath:
+      path: /usr/local/share/ca-certificates
+      type: DirectoryOrCreate
+    name: usr-local-share-ca-certificates
+  - hostPath:
+      path: /usr/share/ca-certificates
+      type: DirectoryOrCreate
+    name: usr-share-ca-certificates
+status: {}
+controlplane $ cat ./manifests/kube-apiserver.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kubeadm.kubernetes.io/kube-apiserver.advertise-address.endpoint: 172.17.0.12:6443
+  creationTimestamp: null
+  labels:
+    component: kube-apiserver
+    tier: control-plane
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - kube-apiserver
+    - --advertise-address=172.17.0.12
+    - --allow-privileged=true
+    - --authorization-mode=Node,RBAC
+    - --client-ca-file=/etc/kubernetes/pki/ca.crt
+    - --enable-admission-plugins=NodeRestriction
+    - --enable-bootstrap-token-auth=true
+    - --etcd-cafile=/etc/kubernetes/pki/etcd/ca.crt
+    - --etcd-certfile=/etc/kubernetes/pki/apiserver-etcd-client.crt
+    - --etcd-keyfile=/etc/kubernetes/pki/apiserver-etcd-client.key
+    - --etcd-servers=https://127.0.0.1:2379
+    - --insecure-port=0
+    - --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.crt
+    - --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client.key
+    - --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname
+    - --proxy-client-cert-file=/etc/kubernetes/pki/front-proxy-client.crt
+    - --proxy-client-key-file=/etc/kubernetes/pki/front-proxy-client.key
+    - --requestheader-allowed-names=front-proxy-client
+    - --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt
+    - --requestheader-extra-headers-prefix=X-Remote-Extra-
+    - --requestheader-group-headers=X-Remote-Group
+    - --requestheader-username-headers=X-Remote-User
+    - --secure-port=6443
+    - --service-account-key-file=/etc/kubernetes/pki/sa.pub
+    - --service-cluster-ip-range=10.96.0.0/12
+    - --tls-cert-file=/etc/kubernetes/pki/apiserver.crt
+    - --tls-private-key-file=/etc/kubernetes/pki/apiserver.key
+    image: k8s.gcr.io/kube-apiserver:v1.19.0
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: 172.17.0.12
+        path: /livez
+        port: 6443
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+    name: kube-apiserver
+    readinessProbe:
+      failureThreshold: 3
+      httpGet:
+        host: 172.17.0.12
+        path: /readyz
+        port: 6443
+        scheme: HTTPS
+      periodSeconds: 1
+      timeoutSeconds: 15
+    resources:
+      requests:
+        cpu: 250m
+    startupProbe:
+      failureThreshold: 24
+      httpGet:
+        host: 172.17.0.12
+        path: /livez
+        port: 6443
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+    volumeMounts:
+    - mountPath: /etc/ssl/certs
+      name: ca-certs
+      readOnly: true
+    - mountPath: /etc/ca-certificates
+      name: etc-ca-certificates
+      readOnly: true
+    - mountPath: /etc/kubernetes/pki
+      name: k8s-certs
+      readOnly: true
+    - mountPath: /usr/local/share/ca-certificates
+      name: usr-local-share-ca-certificates
+      readOnly: true
+    - mountPath: /usr/share/ca-certificates
+      name: usr-share-ca-certificates
+      readOnly: true
+  hostNetwork: true
+  priorityClassName: system-node-critical
+  volumes:
+  - hostPath:
+      path: /etc/ssl/certs
+      type: DirectoryOrCreate
+    name: ca-certs
+  - hostPath:
+      path: /etc/ca-certificates
+      type: DirectoryOrCreate
+    name: etc-ca-certificates
+  - hostPath:
+      path: /etc/kubernetes/pki
+      type: DirectoryOrCreate
+    name: k8s-certs
+  - hostPath:
+      path: /usr/local/share/ca-certificates
+      type: DirectoryOrCreate
+    name: usr-local-share-ca-certificates
+  - hostPath:
+      path: /usr/share/ca-certificates
+      type: DirectoryOrCreate
+    name: usr-share-ca-certificates
+status: {}
+controlplane $ cat ./manifests/kube-scheduler.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    component: kube-scheduler
+    tier: control-plane
+  name: kube-scheduler
+  namespace: kube-system
+spec:
+  containers:
+  - command:
+    - kube-scheduler
+    - --authentication-kubeconfig=/etc/kubernetes/scheduler.conf
+    - --authorization-kubeconfig=/etc/kubernetes/scheduler.conf
+    - --bind-address=127.0.0.1
+    - --kubeconfig=/etc/kubernetes/scheduler.conf
+    - --leader-elect=true
+    - --port=0
+    image: k8s.gcr.io/kube-scheduler:v1.19.0
+    imagePullPolicy: IfNotPresent
+    livenessProbe:
+      failureThreshold: 8
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10259
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+    name: kube-scheduler
+    resources:
+      requests:
+        cpu: 100m
+    startupProbe:
+      failureThreshold: 24
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10259
+        scheme: HTTPS
+      initialDelaySeconds: 10
+      periodSeconds: 10
+      timeoutSeconds: 15
+    volumeMounts:
+    - mountPath: /etc/kubernetes/scheduler.conf
+      name: kubeconfig
+      readOnly: true
+  hostNetwork: true
+  priorityClassName: system-node-critical
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/scheduler.conf
+      type: FileOrCreate
+    name: kubeconfig
+status: {}
+
+
+#############################
+config
+#############################
+root@controlplane:~/.kube# cat config
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM1ekNDQWMrZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeE1EVXlNVEUzTWpBMU5sb1hEVE14TURVeE9URTNNakExTmxvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTFN0CmZLOEo1WVoySFpmT2lLSnFsbC9ybXliSUtFMG5jUjdPN2huTlpnS3poM1FuU01leWVxek5ZS2U3T0ZSajNaVWgKaEpsa01CRmtFREx4Y3dLZVllU3YxUU9wK0pLMjdhMHdXNkFKNTNSVmhVdG5IYTA4bm9EaXU4OGdpZSt6ZlE3bQpjSXJlMUFpZmhEYkk0dnpmcmk1dW5URHV5REZVUFFaSFkrb1ZHTWYzYVRaMzB6YUJuM0VyTnMvOTdsZS9PdDU3CjlZcnNtSEY5a2JqWTJCc2ZmMGJEQUd1T2E3Z3hYRjBIckx5QnUvWFp2MFVkbGU3ZkZwWUdUYWp4Vlk4TGFsQW4KTWJ0VmxwZ3cybGFSTVRyMEYyaXhTOGdpc2JzVzMwamxvWWxKVjRZakdhWEVrTTE0SmFLQWl4OS94Q1c5ZnZFNQphZlkyN3lNNjFucS9PbUtObHVFQ0F3RUFBYU5DTUVBd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZCSExXcEw1REE2eDVJS2NQWThFcVJHNElyRExNQTBHQ1NxR1NJYjMKRFFFQkN3VUFBNElCQVFDbnFKN0szZUZ4Ykl5NjJZdDZSYzZZV3VQeFhrRGcvVHNSZnhSQjc3eGpDMmtUS0RKYwovYWVBN0VDd2Nwd2xCYm8yVFRpMUxDRFBYaEUyZU9DcitsSkgvcllaS3ZsRC91RVhZcnZMd2EzMXVVSWRSVlpqCkVwbDhYOTVHUHA4QllDYno4dDRMN3N4TmExR0U2dnNKMHY3QkkxZ2JXT0NTN1Y0VjBReTFTbkJjcGFkQ2Q0cEoKRktOSHdWZ2VpWVNpQWMxZis0UHo3bDljTE5KczlLazZJN1ZPN3Y3TFZ3eDRPbllsellLWVBRVnNQbCtzdHFmQgpyc0ZLaEF0bkZ4Z0crLzMrTSsrRFpKWlZyeUV3UDF5OERyc2hzdmVTVUs4ZSsvcUdZWVNlMFNScVY2V2s5NWFSCks2YUdYYldLRDZwckZEdDRYNnZKdEtFazFZQjRBRUpnODArNAotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    server: https://controlplane:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: kubernetes-admin
+  name: kubernetes-admin@kubernetes
+current-context: kubernetes-admin@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: kubernetes-admin
+  user:
+    client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURFekNDQWZ1Z0F3SUJBZ0lJRysrcnhvdWlkOTR3RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB5TVRBMU1qRXhOekl3TlRaYUZ3MHlNakExTWpFeE56SXhNREZhTURReApGekFWQmdOVkJBb1REbk41YzNSbGJUcHRZWE4wWlhKek1Sa3dGd1lEVlFRREV4QnJkV0psY201bGRHVnpMV0ZrCmJXbHVNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQXd5YVJYRkd3YVprYVdzVXYKRGQ0cXFMTTh3Z1ZvQ0M3aTRNaitNaUdOZ29rZE9ld3ZCUEZDZS9Cb3JRVCtsZTZYTVljVFA1MW82TFNHQ2RhbApSbG5Ca3cydnlKY29OUmdFMlBFOGt6aVVWMGpUZHZTblEySWprM2ZqVTJMcGNwSVhWdEljaWdRZlZWc2VqUE1ICmlrMGkxNHRXR2h0R0J3RGx6bUR1QmVhaE1EbDhIRGlueUIwbkVuVU9zTVZVS0EyK2Z2KzN4eUdRSFg1aWJKZHAKK3d3U3I3UDlEZklIcGhYZTdmU0xRdzVpcVpEbnlCZmZ4MUNtK2p0TnhRdEMxSWxZdVl1cHV5NHlMNWFJV0lOegp1cUtDaXYzZ1hiV2MrRzVsUVVjZTU3d21YL1lHci9qSmNXWHBJdUpMWkJ4L3BuVWo4cDRUWTZDVFFBUjJ4aEI1Cm04WG1XUUlEQVFBQm8wZ3dSakFPQmdOVkhROEJBZjhFQkFNQ0JhQXdFd1lEVlIwbEJBd3dDZ1lJS3dZQkJRVUgKQXdJd0h3WURWUjBqQkJnd0ZvQVVFY3Rha3ZrTURySGtncHc5andTcEViZ2lzTXN3RFFZSktvWklodmNOQVFFTApCUUFEZ2dFQkFLTTBBRjU2R3d6VUpmeHhlcUYycDZDVTFUSUJOalgvc1FvR2lyYWtTNnZmYUxTRlFydlFsQmxnCklRN2ZNcHd6RkV6dlJWQzBpWjFiYmtBYTg0dHhiTFUyZXRTM1A0Nm14WHRwb2JFL1paOHFYY2FtVldhK09ZK2wKL1NWWWYwWTFIOE1HKzZGY1haVkZiN2FNbVdCTDRveFlSVmxLOGwwUE0xMDRmRFBCaWlRRnErbnVYOUtrUlR2bgpRL2k1bjlSMjBKK0hkVHpqWDRkUGxyR3hkNnl0dVNYUzdjOVRwQnNPNnFyc0wzUGw2ZFVBdFAwck9wcnpsUjE5CjBjeFA4YklwdDM5TlB5QXVhcmdlQVBsbll2dW5IRUIvSWVVbHAveDJGZEpzcmpDbjA2TDVhdTFoSFlLY3BSREUKNGlFNlFqWldxNTQ2RWExS2NtN2ZQUWE2RXZxcXR0ST0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+    client-key-data: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcGdJQkFBS0NBUUVBd3lhUlhGR3dhWmthV3NVdkRkNHFxTE04d2dWb0NDN2k0TWorTWlHTmdva2RPZXd2CkJQRkNlL0JvclFUK2xlNlhNWWNUUDUxbzZMU0dDZGFsUmxuQmt3MnZ5SmNvTlJnRTJQRThremlVVjBqVGR2U24KUTJJamszZmpVMkxwY3BJWFZ0SWNpZ1FmVlZzZWpQTUhpazBpMTR0V0dodEdCd0Rsem1EdUJlYWhNRGw4SERpbgp5QjBuRW5VT3NNVlVLQTIrZnYrM3h5R1FIWDVpYkpkcCt3d1NyN1A5RGZJSHBoWGU3ZlNMUXc1aXFaRG55QmZmCngxQ20ranROeFF0QzFJbFl1WXVwdXk0eUw1YUlXSU56dXFLQ2l2M2dYYldjK0c1bFFVY2U1N3dtWC9ZR3IvakoKY1dYcEl1SkxaQngvcG5VajhwNFRZNkNUUUFSMnhoQjVtOFhtV1FJREFRQUJBb0lCQVFDcHdQTFJDMzRaWFVTLwprS2JOdVdRQ08yZXVubVZRT1BqQjhCU3VKdUdobXdRQlRxSFgrc1dLYWlXajI2UlpaNkc5UTNKSzgvSTkra3BlClpJaUFHYk40NTM3eFRndDdvOWtUblVURUM0TitLYXRJM3FoZ3hRMk5TY3hFek5XbEE4K3BoanV0RXNqdXhzUmMKZDBzbjB0RnNEWmhvUFRFOUJscmdteEJ4c1p5bEJOYmF3blZNbkE2NHJualYreldWd3M2dzc2MWkxV0dxbUJKOQpoQkFRcVB5ZzdxRHRnZm50bzYvTGxnaHJyNDdHQXFoZkRKQ1k5ZDUwVVozcFlFRmFvRVFFQWJ1UjFlMEMxenRICnpJelhMV3BsVTdDaDZqcEFMSzFMRkkwQS9IZm80T25BSkVVWFBrRWN2KzUrSGNnY2szaFo4Y3IrT1hiY2pBSnIKdUJ6ZXA2akJBb0dCQU9vWmlqQkhpcnB2M20rMXpDVzFVWExQdGhMZk5QdU9XbTMyWHl2SXF1ZmVjOEsrNE9oTwpiRUZyQ0dXOEsvTVI0Q2U2YlREZ1F0RXdWTjJ3OUEyYXFQZXR2RWFobEVkU0I4TVRvLytobzdoM0t5bTlHZHJsCjhBaFY5Y1JiVDVhbUlLOHRNU241RDFOc2MwUUk3RU1rc1dkNk1IdEdpazlVcTZDcklyQjRKNnpyQW9HQkFOVm8KUENkazUxOGJLaDhSY2JGczh5c3hJSTNDVlpxcW5YY3o4ZW5BbWQ1bGtkY3Nmb1FUeG9La2wvNGxSdWdQSzNuKwpEWjhraHpwQ3JjOXlBWnJZSjE5ZjJTa1o5Q3BwdDVidUwrZDRweUEyZHBOUzlrNUdvQkpnV2pvTU03QS83OWV2CmpRckMrWkx1MUxlY3FQek5PZnA4K3gyY0t6ajRvRlRRS0hLKzNWakxBb0dCQU1hOG1lRTB5eVJObG1QMXpYTHgKeEV5WTQ3U1B3M1lQdXR1QmZmZzRxa2FnUmx3OUdjaDkwMCtTSXhYak10aHZBNElXdFYzNTlSK01UVy9MS3RWbAp5QzVFVXdNUFowZEk3NGYvNDRsQVd6SmVFTW1sWFE3RmlBbzdsNkp6OWxRcGdyUFV4TmtpTkkyWkV4M2VDVjFUCkNEeVZzaFRscE1PR1dSSFVWMlhEQzhPekFvR0JBSkRLYk8zSmYxVyt4NEJXeEkyOXZ1cVNKV1VvOGczRExwMCsKNkNaUm45UU5rN3FySEplZUZ6UnlXaEY3MXpVQmZkMENLdG5MM2RnQWY0N2M2Z3ZXRmppV2ZtOXRoWVQxUHpPdgpIVjl1TSs0ZUphdGxRV253YnhDb3dPN2Jjb0psanVRRzNxbnJpWXRRY1pDMlFNMXNyS2F2LzJ5aWxZek0yM05QCjIvR21YK1dyQW9HQkFLeE14bTQwV0xRcGhia1VzU0RieTRlUFMvdU1naHhCQjh0cVlVaE80TGZ3SEo3MW5wdmsKT3V3dXBaV2Nna1NPNU9pOW85b2FibVhkbG03bVg2UnUvd0ZaS2VwSGpVZXJRRWdHeXdUQ2FOTnFQeXFHTEgwSwpSUXQzNnV4QnhYclBuZUxKeExGM0ZvemJGbWx4ZkU1Q2MrYlZLSnVWT0ZJcWdYUERjYmtXZHNvcQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+
+
+root@controlplane:~/.kube# kubectl config view
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://controlplane:6443
+  name: kubernetes
+contexts:
+- context:
+    cluster: kubernetes
+    user: kubernetes-admin
+  name: kubernetes-admin@kubernetes
+current-context: kubernetes-admin@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: kubernetes-admin
+  user:
+    client-certificate-data: REDACTED
+    client-key-data: REDACTED
+root@controlplane:~/.kube#
+
+
+root@controlplane:~/.kube# kubectl config view --kubeconfig /root/my-kube-config
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority: /etc/kubernetes/pki/ca.crt
+    server: https://controlplane:6443
+  name: development
+- cluster:
+    certificate-authority: /etc/kubernetes/pki/ca.crt
+    server: https://controlplane:6443
+  name: kubernetes-on-aws
+- cluster:
+    certificate-authority: /etc/kubernetes/pki/ca.crt
+    server: https://controlplane:6443
+  name: production
+- cluster:
+    certificate-authority: /etc/kubernetes/pki/ca.crt
+    server: https://controlplane:6443
+  name: test-cluster-1
+contexts:
+- context:
+    cluster: kubernetes-on-aws
+    user: aws-user
+  name: aws-user@kubernetes-on-aws
+- context:
+    cluster: test-cluster-1
+    user: dev-user
+  name: research
+- context:
+    cluster: development
+    user: test-user
+  name: test-user@development
+- context:
+    cluster: production
+    user: test-user
+  name: test-user@production
+current-context: test-user@development
+kind: Config
+preferences: {}
+users:
+- name: aws-user
+  user:
+    client-certificate: /etc/kubernetes/pki/users/aws-user/aws-user.crt
+    client-key: /etc/kubernetes/pki/users/aws-user/aws-user.key
+- name: dev-user
+  user:
+    client-certificate: /etc/kubernetes/pki/users/dev-user/developer-user.crt
+    client-key: /etc/kubernetes/pki/users/dev-user/dev-user.key
+- name: test-user
+  user:
+    client-certificate: /etc/kubernetes/pki/users/test-user/test-user.crt
+    client-key: /etc/kubernetes/pki/users/test-user/test-user.key
+root@controlplane:~/.kube#

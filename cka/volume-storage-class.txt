@@ -1,0 +1,74 @@
+-- In two of storage class one is automatic provisioner and other is not, compare two and you will get the idea
+-- https://kubernetes.io/docs/concepts/storage/storage-classes/#the-storageclass-resource
+-- storage / lab 2 / q 3
+
+
+root@controlplane:~# k get sc local-storage -o yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"storage.k8s.io/v1","kind":"StorageClass","metadata":{"annotations":{},"name":"local-storage"},"provisioner":"kubernetes.io/no-provisioner","volumeBindingMode":"WaitForFirstConsumer"}
+  creationTimestamp: "2021-05-15T09:53:55Z"
+  managedFields:
+  - apiVersion: storage.k8s.io/v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:kubectl.kubernetes.io/last-applied-configuration: {}
+      f:provisioner: {}
+      f:reclaimPolicy: {}
+      f:volumeBindingMode: {}
+    manager: kubectl-client-side-apply
+    operation: Update
+    time: "2021-05-15T09:53:55Z"
+  name: local-storage
+  resourceVersion: "818"
+  uid: dd4e6993-18c4-4855-8778-1cfb9c8c1a21
+provisioner: kubernetes.io/no-provisioner
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+root@controlplane:~#
+
+---
+root@controlplane:~# k get sc portworx-io-priority-high -o yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"storage.k8s.io/v1","kind":"StorageClass","metadata":{"annotations":{},"name":"portworx-io-priority-high"},"parameters":{"priority_io":"high","repl":"1","snap_interval":"70"},"provisioner":"kubernetes.io/portworx-volume"}
+ creationTimestamp: "2021-05-15T09:53:55Z"
+  managedFields:
+  - apiVersion: storage.k8s.io/v1
+    fieldsType: FieldsV1
+    fieldsV1:
+      f:metadata:
+        f:annotations:
+          .: {}
+          f:kubectl.kubernetes.io/last-applied-configuration: {}
+      f:parameters:
+        .: {}
+        f:priority_io: {}
+        f:repl: {}
+        f:snap_interval: {}
+      f:provisioner: {}
+      f:reclaimPolicy: {}
+      f:volumeBindingMode: {}
+    manager: kubectl-client-side-apply
+    operation: Update
+    time: "2021-05-15T09:53:55Z"
+  name: portworx-io-priority-high
+  resourceVersion: "819"
+  uid: a8cde710-78b0-466f-a72b-6a46758bc957
+parameters:
+  priority_io: high
+  repl: "1"
+  snap_interval: "70"
+provisioner: kubernetes.io/portworx-volume
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
+root@controlplane:~#
