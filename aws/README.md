@@ -16,3 +16,10 @@ Author | Description
             D:\projects\aws>
 
 3) Once instance gets created, download rdp file ( remote desktop) to lauch windows server.
+
+
+$ chmod 400 /C/Users/Admin/Downloads/<FILE>.pem
+$ ssh -i /C/Users/Admin/Downloads/<FILE>.pem ubuntu@<IP>
+
+echo "source <(kubectl completion bash)" >> ~/.bashrc
+source ~/.bashrc

@@ -1577,3 +1577,87 @@ users:
     client-certificate: /etc/kubernetes/pki/users/test-user/test-user.crt
     client-key: /etc/kubernetes/pki/users/test-user/test-user.key
 root@controlplane:~/.kube#
+
+
+
+#############################
+Kubelet configuration
+#############################
+ubuntu@ip-10-0-0-100:~$ systemctl status kubelet
+● kubelet.service - kubelet: The Kubernetes Node Agent
+   Loaded: loaded (/lib/systemd/system/kubelet.service; enabled; vendor preset: enabled)
+  Drop-In: /etc/systemd/system/kubelet.service.d
+           └─10-hostname.conf, 10-kubeadm.conf
+   Active: active (running) since Sun 2021-05-30 05:59:54 UTC; 1h 17min ago
+     Docs: https://kubernetes.io/docs/home/
+ Main PID: 5085 (kubelet)
+    Tasks: 16 (limit: 4618)
+   CGroup: /system.slice/kubelet.service
+           └─5085 /usr/bin/kubelet --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf --config=/var/lib/kubelet/config.yaml
+
+May 30 06:00:27 ip-10-0-0-100 kubelet[5085]: 2021-05-30 06:00:27.299 [INFO][8077] ipam.go 303: Block '192.168.32.128/26' provided addresses: [192.168.32.131] handle="k8s-pod-net
+May 30 06:00:27 ip-10-0-0-100 kubelet[5085]: 2021-05-30 06:00:27.300 [INFO][8077] ipam.go 458: Auto-assigned 1 out of 1 IPv4s: [192.168.32.131] handle="k8s-pod-network.73a843bf0
+May 30 06:00:27 ip-10-0-0-100 kubelet[5085]: Calico CNI IPAM assigned addresses IPv4=[192.168.32.131] IPv6=[]
+May 30 06:00:27 ip-10-0-0-100 kubelet[5085]: 2021-05-30 06:00:27.300 [INFO][8077] calico-ipam.go 214: IPAM Result ContainerID="73a843bf01f7d30a4f68e9cbbd0591c46f4152c1871a411922
+May 30 06:00:27 ip-10-0-0-100 kubelet[5085]: 2021-05-30 06:00:27.303 [INFO][8043] k8s.go 337: Populated endpoint ContainerID="73a843bf01f7d30a4f68e9cbbd0591c46f4152c1871a4119223
+May 30 06:00:27 ip-10-0-0-100 kubelet[5085]: Calico CNI using IPs: [192.168.32.131/32]
+May 30 06:00:27 ip-10-0-0-100 kubelet[5085]: 2021-05-30 06:00:27.304 [INFO][8043] network.go 75: Setting the host side veth name to calibcd6a6bdc12 ContainerID="73a843bf01f7d30a
+May 30 06:00:27 ip-10-0-0-100 kubelet[5085]: 2021-05-30 06:00:27.304 [INFO][8043] network.go 380: Disabling IPv4 forwarding ContainerID="73a843bf01f7d30a4f68e9cbbd0591c46f4152c1
+May 30 06:00:27 ip-10-0-0-100 kubelet[5085]: 2021-05-30 06:00:27.326 [INFO][8043] k8s.go 364: Added Mac, interface name, and active container ID to endpoint ContainerID="73a843b
+May 30 06:00:27 ip-10-0-0-100 kubelet[5085]: 2021-05-30 06:00:27.343 [INFO][8043] k8s.go 372: Wrote updated endpoint to datastore ContainerID="73a843bf01f7d30a4f68e9cbbd0591c46f
+
+#############################
+Get location of config from above step - /var/lib/kubelet/config.yaml & find staticPodPath
+#############################
+
+ubuntu@ip-10-0-0-100:~$ cat /var/lib/kubelet/config.yaml
+cat: /var/lib/kubelet/config.yaml: Permission denied
+ubuntu@ip-10-0-0-100:~$
+ubuntu@ip-10-0-0-100:~$ sudo cat /var/lib/kubelet/config.yaml
+apiVersion: kubelet.config.k8s.io/v1beta1
+authentication:
+  anonymous:
+    enabled: false
+  webhook:
+    cacheTTL: 0s
+    enabled: true
+  x509:
+    clientCAFile: /etc/kubernetes/pki/ca.crt
+authorization:
+  mode: Webhook
+  webhook:
+    cacheAuthorizedTTL: 0s
+    cacheUnauthorizedTTL: 0s
+cgroupDriver: cgroupfs
+clusterDNS:
+- 10.96.0.10
+clusterDomain: cluster.local
+cpuManagerReconcilePeriod: 0s
+evictionPressureTransitionPeriod: 0s
+fileCheckFrequency: 0s
+healthzBindAddress: 127.0.0.1
+healthzPort: 10248
+httpCheckFrequency: 0s
+imageMinimumGCAge: 0s
+kind: KubeletConfiguration
+logging: {}
+nodeStatusReportFrequency: 0s
+nodeStatusUpdateFrequency: 0s
+resolvConf: /run/systemd/resolve/resolv.conf
+rotateCertificates: true
+runtimeRequestTimeout: 0s
+staticPodPath: /etc/kubernetes/manifests
+streamingConnectionIdleTimeout: 0s
+syncFrequency: 0s
+volumeStatsAggPeriod: 0s
+ubuntu@ip-10-0-0-100:~$
+
+>> What is the network interface configured for cluster connectivity on the master node?  node-to-node communication [ans - eth0]
+# Get master node internal ip address
+kubectl get nodes -o wide
+# Run either of ip a / ip link
+root@controlplane:~# ip a | grep -B2 10.249.215.11
+18830: eth0@if18831: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1450 qdisc noqueue state UP group default
+    link/ether 02:42:0a:f9:d7:0b brd ff:ff:ff:ff:ff:ff link-netnsid 0
+    inet 10.249.215.11/24 brd 10.249.215.255 scope global eth0
+

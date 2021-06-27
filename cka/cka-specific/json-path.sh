@@ -1,9 +1,23 @@
-kubect1 get po nginx-dev -o jsonpath='{.spec.containers[].image}{"\n"}'
-kubect1 get pods -o=jsonpath='{range items[*]}{.metadata.name}{"\t"}{.status.podIP}{"\n"}{end}'
-kubect1 get pods -o=jsonpath=”{.items[*] [‘.metadata.name’ , ‘metadata.namespace’]}”
-kubect1 get pods --sort-by=.metadata.creationTimestamp
-kubect1 get pods --sort-by=.metadata.name
-kubect1 get pv --sort-by=.spec.capacity.storage > /opt/pv-storage.txt
+https://kubernetes.io/docs/reference/kubectl/jsonpath/
+------------------------------------------------------
+https://github.com/json-path/JsonPath
+------------------------------------------------------
+
+kubectl get po etcd-controlplane -o jsonpath='{.spec.containers[].image}{"\n"}'
+kubectl get po  -o jsonpath='{.items[*].metadata.name}{"\n"}'
+kubectl get pods -o=jsonpath="{.items[*]['metadata.name', 'status.capacity']}"
+kubectl get pods -o=jsonpath='{range .items[*]}{.metadata.name}{"\t"}{.status.startTime}{"\n"}{end}'
+kubectl get pods -o=jsonpath="{range .items[*]}{.metadata.name}{\"\t\"}{.status.startTime}{\"\n\"}{end}"
+
+$.car.wheels[?(@.location == 'US')].model
+$.prizes[?(@.year == 2014)].laureates[*].firstname
+
+kubectl get po nginx-dev -o jsonpath='{.spec.containers[].image}{"\n"}'
+kubectl get pods -o=jsonpath='{range items[*]}{.metadata.name}{"\t"}{.status.podIP}{"\n"}{end}'
+kubectl get pods -o=jsonpath='{.items[*] [‘.metadata.name’ , ‘metadata.namespace’]}'
+kubectl get pods --sort-by=.metadata.creationTimestamp
+kubectl get pods --sort-by=.metadata.name
+kubectl get pv --sort-by=.spec.capacity.storage > /opt/pv-storage.txt
 
 
 kubectl get nodes -o customcolumns=NAME:.metadata.name,TAINTS:.spec.taints --no-headers
