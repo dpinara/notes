@@ -1,14 +1,18 @@
-
 ########################################################
 #   Exam
 ########################################################
-
+sudo -i
 alias k=kubectl
 alias c=clear
 alias kgns="kubectl config  view| grep namespace"
 function ksns() { kubectl config set-context $(kubectl config current-context) --namespace=$1; }
 export force="--force --grace-period=0"
 export dd="--dry-run=client -o yaml"
+kubectl explain Pod.spec.serviceAccount --recursive | grep "containers\|serviceAccount"
+
+
+set list
+set listchars=tab:>-
 
 ########################################################
 #   Foundational and useful command
@@ -35,11 +39,6 @@ export dd="--dry-run=client -o yaml"
 ########################################################
 #   Validation
 ########################################################
-
-kubectl explain Pod.spec.serviceAccount --recursive | grep "containers\|serviceAccount"
-
-set list
-set listchars=tab:>-
 
 root@controlplane:~# cat /root/curl-test.sh
 for i in {1..35}; do

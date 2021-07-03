@@ -1,9 +1,9 @@
--- In two of storage class one is automatic provisioner and other is not, compare two and you will get the idea
--- https://kubernetes.io/docs/concepts/storage/storage-classes/#the-storageclass-resource
--- storage / lab 2 / q 3
+#-- In two of storage class one is automatic provisioner and other is not, compare two and you will get the idea
+#-- https://kubernetes.io/docs/concepts/storage/storage-classes/#the-storageclass-resource
+#-- storage / lab 2 / q 3
 
 
-root@controlplane:~# k get sc local-storage -o yaml
+#root@controlplane:~# k get sc local-storage -o yaml
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
@@ -34,7 +34,7 @@ volumeBindingMode: WaitForFirstConsumer
 root@controlplane:~#
 
 ---
-root@controlplane:~# k get sc portworx-io-priority-high -o yaml
+#root@controlplane:~ k get sc portworx-io-priority-high -o yaml
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
