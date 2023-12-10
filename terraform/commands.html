@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bootstrap Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class=".container-fluid">
+    <table width="88%" class="table table-striped">
+        <thead>
+        <tr>
+            <th>
+                    <p><a href="#commands"> Commands </a> |<a href="#others"> Others </a> |
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td height="2">
+
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<div class="container">
+    <h2 id="commands">Terraform Commands</h2>
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#home">Common</a></li>
+        <li><a data-toggle="tab" href="#apply">apply</a></li>
+        <li><a data-toggle="tab" href="#console">console</a></li>
+        <li><a data-toggle="tab" href="#debug">debug</a></li>
+        <li><a data-toggle="tab" href="#destroy">destroy</a></li>
+        <li><a data-toggle="tab" href="#env">env</a></li>
+        <li><a data-toggle="tab" href="#fmt">fmt</a></li>
+        <li><a data-toggle="tab" href="#force-unlock">force-unlock</a></li>
+        <li><a data-toggle="tab" href="#get">get</a></li>
+        <li><a data-toggle="tab" href="#graph">graph</a></li>
+        <li><a data-toggle="tab" href="#import">import</a></li>
+        <li><a data-toggle="tab" href="#init">init</a></li>
+        <li><a data-toggle="tab" href="#login">login</a></li>
+        <li><a data-toggle="tab" href="#logout">logout</a></li>
+        <li><a data-toggle="tab" href="#output">output</a></li>
+        <li><a data-toggle="tab" href="#plan">plan</a></li>
+        <li><a data-toggle="tab" href="#providers">providers</a></li>
+        <li><a data-toggle="tab" href="#push">push</a></li>
+        <li><a data-toggle="tab" href="#refresh">refresh</a></li>
+        <li><a data-toggle="tab" href="#show">show</a></li>
+        <li><a data-toggle="tab" href="#state">state</a></li>
+        <li><a data-toggle="tab" href="#taint">taint</a></li>
+        <li><a data-toggle="tab" href="#untaint">untaint</a></li>
+        <li><a data-toggle="tab" href="#validate">validate</a></li>
+        <li><a data-toggle="tab" href="#version">version</a></li>
+        <li><a data-toggle="tab" href="#workspace">workspace</a></li>
+    </ul>
+
+    <div class="tab-content">
+
+        <div id="home" class="tab-pane fade in active">
+            <h3>Common</h3>
+            <pre>
+                C:\projects\terraform\cloud-academy\terraform-aws-main\exercises\exercise1>terraform
+                Usage: terraform [-version] [-help] &lt;command&gt; [args]
+
+                The available commands for execution are listed below.
+                The most common, useful commands are shown first, followed by
+                less common or more advanced commands. If you're just getting
+                started with Terraform, stick with the common commands. For the
+                other commands, please read the help and docs before usage.
+
+                Common commands:
+                apply              Builds or changes infrastructure
+                console            Interactive console for Terraform interpolations
+                destroy            Destroy Terraform-managed infrastructure
+                env                Workspace management
+                fmt                Rewrites config files to canonical format
+                get                Download and install modules for the configuration
+                graph              Create a visual graph of Terraform resources
+                import             Import existing infrastructure into Terraform
+                init               Initialize a Terraform working directory
+                login              Obtain and save credentials for a remote host
+                logout             Remove locally-stored credentials for a remote host
+                output             Read an output from a state file
+                plan               Generate and show an execution plan
+                providers          Prints a tree of the providers used in the configuration
+                refresh            Update local state file against real resources
+                show               Inspect Terraform state or plan
+                taint              Manually mark a resource for recreation
+                untaint            Manually unmark a resource as tainted
+                validate           Validates the Terraform files
+                version            Prints the Terraform version
+                workspace          Workspace management
+
+                All other commands:
+                0.12upgrade        Rewrites pre-0.12 module source code for v0.12
+                0.13upgrade        Rewrites pre-0.13 module source code for v0.13
+                debug              Debug output management (experimental)
+                force-unlock       Manually unlock the terraform state
+                push               Obsolete command for Terraform Enterprise legacy (v1)
+                state              Advanced state management
+            </pre>
+
+        </div>
+
+        <div id="apply" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="console" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="debug" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="destroy" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="env" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="fmt" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="force-unlock" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="get" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="graph" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="import" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="init" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="login" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="logout" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="output" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="plan" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="providers" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="push" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+
+        <div id="refresh" class="tab-pane fade">
+            <h3>refresh</h3>
+            <p>
+                This command is deprecated, because its default behavior is unsafe if you have misconfigured
+                credentials for any of your providers
+                You shouldn't typically need to use this command, because Terraform automatically performs the
+                same refreshing actions as a part of creating a plan in both the terraform plan and terraform
+                apply commands. This command is here primarily for backward compatibility, but we don't
+                recommend using it because it provides no opportunity to review the effects of the operation
+                before updating the state.
+            <p> Instead, we recommend using the following command in order to get the same effect but with the
+                opportunity to review the changes that Terraform has detected before committing them to the
+                state:
+                terraform apply -refresh-only
+        </div>
+        <div id="show" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+
+        <div id="state" class="tab-pane fade">
+            <h3>state</h3>
+            <p>
+            <pre>
+                    ec2-user@ip-10-0-0-67 infra]$ tf state
+                    Usage: terraform state &lt;pre&gt; [options] [args]
+
+                      This command has subcommands for advanced state management.
+
+                      These subcommands can be used to slice and dice the Terraform state.
+                      This is sometimes necessary in advanced cases. For your safety, all
+                      state management commands that modify the state create a timestamped
+                      backup of the state prior to making modifications.
+
+                      <strong>The structure and output of the commands is specifically tailored to work
+                      well with the common Unix utilities such as grep, awk, etc.</strong> We recommend
+                      using those tools to perform more advanced state tasks.
+
+                    Subcommands:
+                        list    List resources in the state
+                        mv      Move an item in the state
+                        pull    Pull current state and output to stdout
+                        push    Update remote state from a local state file
+                        rm      Remove an item from the state
+                        show    Show a resource in the state
+                    [ec2-user@ip-10-0-0-184 infra]$ tf state list
+                    aws_instance.web[0]
+                    aws_instance.web[1]
+                    aws_subnet.web_subnet[0]
+                    aws_subnet.web_subnet[1]
+                    aws_vpc.web_vpc
+
+
+                    wget https://releases.hashicorp.com/terraform/1.0.1/terraform_1.0.1_linux_amd64.zip
+                    sudo unzip terraform_1.0.1_linux_amd64.zip -d /usr/local/bin/
+                    rm terraform_1.0.1_linux_amd64.zip
+
+
+                    [*] The Terraform plan is output and indicates the number of resources to add, change, or destroy. The plan details use the following symbols for each type of action:
+
+                    +: Add
+                    -: Destroy
+                    ~: Change
+
+                    aws ec2 describe-vpcs           --region us-west-2 --filter "Name=tag:Name,Values=Web VPC"
+                    aws ec2 describe-vpc-attribute  --region us-west-2 --attribute enableDnsHostnames --vpc-id &lt;VPC_ID&gt;
+
+
+                </pre>
+
+            </p>
+        </div>
+        <div id="taint" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="untaint" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="validate" class="tab-pane fade"><h3>Details</h3>            <p>        </div>
+        <div id="version" class="tab-pane fade"><h3>Details</h3><p></p></div>
+
+        <div id="workspace" class="tab-pane fade">
+            <h3>workspace</h3>
+            <p>Terraform stores the states for its workspaces under terraform.tfstate.d</p>
+        </div>
+    </div>
+</div>
+
+<!-- Others -->
+<div class="container">
+    <h2 id="others">Others</h2>
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#structure">Structure</a></li>
+        <li class="active"><a data-toggle="tab" href="#module">Module</a></li>
+        <li><a data-toggle="tab" href="#provider">provider</a></li>
+        <li><a data-toggle="tab" href="#provisioner">provisioner</a></li>
+    </ul>
+
+    <div class="tab-content">
+
+
+        <div id="structure" class="tab-pane fade">
+            <h3>structure</h3>
+            <p> Structure
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
